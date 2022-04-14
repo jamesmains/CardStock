@@ -1,0 +1,62 @@
+	using color picker
+	https://github.com/mmaletin/UnityColorPicker
+   _____              _  _____ _             _    
+  / ____|            | |/ ____| |           | |   
+ | |     __ _ _ __ __| | (___ | |_ ___   ___| | __
+ | |    / _` | '__/ _` |\___ \| __/ _ \ / __| |/ /
+ | |___| (_| | | | (_| |____) | || (_) | (__|   < 
+  \_____\__,_|_|  \__,_|_____/ \__\___/ \___|_|\_\
+
+--------------------------------
+----------Known Issues----------
+--------------------------------
+There is currently no way to set a default color per card object (not really an issue, but not convienent)
+
+--------------------------------
+--------------Wants-------------
+--------------------------------
+
+Duplicate Card Element
+Crop Card Image Element
+
+--------------------------------
+-----------PATCH NOTES----------
+--------------------------------
+
+
+Patch Notes 0.6.0
+- Fixed bug that prevented text objects from being layered correctly
+- Fixed bug that caused null value to get through on font size
+- Minor gui fixes: added refresh card list button, changed initial display for font family dropdown, changed how color picker moves in and out of view
+- Added in image / text color changing
+- Added in centering functionality to object adjustment
+- Added file overwrite and load protection
+
+Patch Notes 0.7.0
+- Added exporting functionality
+- Improved GUI
+
+Patch Notes 0.7.1
+- Renamed App
+- More GUI aesthetic changes
+
+Patch Notes 0.8.x
+- Fixed bug that made new text objects that don't get their color adjusted appear white when loaded in
+- Added page planner
+- Sorta re-fixed bug that made initial color saving for card objects to be incorrect
+
+Patch Notes 0.9.x
+- Added saved prompt
+- Added tool box scene swapper
+- Paul
+- Slight UI improvements
+- Fill now also resets position so the item takes up the entire card correctly
+- Added lock functionality to prevent certain items from getting modified when the user doesn't want that
+- Improved page export on page planner
+- Added tabbing functionality
+
+Patch Notes 1.0.0
+  ___         _                           _ 
+ | _ \  ___  | |  ___   __ _   ___  ___  | |
+ |   / / -_) | | / -_) / _` | (_-< / -_) |_|
+ |_|_\ \___| |_| \___| \__,_| /__/ \___| (_)
