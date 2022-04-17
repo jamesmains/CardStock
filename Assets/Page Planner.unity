@@ -231,6 +231,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2101991098197078337, guid: 32f3b0484e9c5ac4e894719c52fc9906, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1c2f26369ec365b4eb62efcc25d7f83d, type: 3}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 32f3b0484e9c5ac4e894719c52fc9906, type: 3}
@@ -3164,7 +3168,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7563654039893532877, guid: 42040420eff76684ca015be7ed1c7fda, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1c2f26369ec365b4eb62efcc25d7f83d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
