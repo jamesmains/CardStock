@@ -12,17 +12,15 @@ public class Draggable : MonoBehaviour, IDragHandler
     private Canvas _canvas;
     private RectTransform _rect;
 
-    private void Start()
+    private void Awake()
     {
         _rect = GetComponent<RectTransform>();
         _canvas = GetComponentInParent<Canvas>();
-        if(GetComponent<Image>())
-            GetComponent<Image>().alphaHitTestMinimumThreshold = 0.5f;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         _rect.anchoredPosition += eventData.delta / _canvas.scaleFactor;
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 }

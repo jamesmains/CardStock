@@ -8,6 +8,7 @@ namespace JimJam.Interface
 {
     public class Selection : MonoBehaviour
     {
+        [SerializeField] private Vector2 padding;
         private RectTransform _rect;
 
         private void Start()
@@ -17,7 +18,7 @@ namespace JimJam.Interface
 
         public void HighlightArea(Vector2 size, Vector2 pos)
         {
-            _rect.sizeDelta = size;
+            _rect.sizeDelta = size + padding;
             _rect.localPosition = pos;
         }
 

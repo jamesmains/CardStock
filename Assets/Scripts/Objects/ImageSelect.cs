@@ -17,6 +17,7 @@ public class ImageSelect : SelectableItem
     protected override void Awake()
     {
         _image = GetComponent<Image>();
+        _image.alphaHitTestMinimumThreshold = 0.5f;
         base.Awake();
         _selectImage = GameObject.FindWithTag("TryChangeImage").GetComponent<Button>();
         _imageSelection = GameObject.FindWithTag("ImageSelection").GetComponent<SmoothMoves>();
@@ -71,7 +72,7 @@ public class ImageSelect : SelectableItem
         _imageFilePath = newPath;
         if (_imageFilePath != String.Empty)
             _image.sprite = LoadNewSprite(_imageFilePath);
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
     
     // Solution pulled from https://forum.unity.com/threads/generating-sprites-dynamically-from-png-or-jpeg-files-in-c.343735/

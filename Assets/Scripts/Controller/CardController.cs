@@ -8,7 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BombsController : MonoBehaviour
+public class CardController : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private GameObject newImageObject;
@@ -37,7 +37,7 @@ public class BombsController : MonoBehaviour
     [HideInInspector] 
     public bool recentlySaved = true;
 
-    public static BombsController instance;
+    public static CardController instance;
     private void Awake()
     {
         if (instance == null)
@@ -52,6 +52,7 @@ public class BombsController : MonoBehaviour
 
     private void Update()
     {
+        // todo: move to controller
         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
             if(Input.GetKeyDown(KeyCode.S))
@@ -76,6 +77,8 @@ public class BombsController : MonoBehaviour
         _items.Add(item);
         item.SelectItem();
     }
+
+    #region Card Functions
 
     private void SelectCard(FileListObject incomingSelection)
     {
@@ -181,6 +184,20 @@ public class BombsController : MonoBehaviour
         recentlySaved = true;
     }
 
+    public void ClearCard()
+    {
+        WarningMessageBox.Instance.DisplayWarning("Are you sure you want to clear this card?",ConfirmClearCard);
+    }
+
+    void ConfirmClearCard()
+    {
+        SelectableItem.SelectedItem?.DeselectItem();
+        ClearElements();
+        cardNameInput.text = "";
+    }
+
+    #endregion
+    
     public void TakeScreenShot()
     {
         if (cardNameInput.text == String.Empty)
@@ -212,18 +229,7 @@ public class BombsController : MonoBehaviour
         _items.Clear();
     }
 
-    public void ClearCard()
-    {
-        WarningMessageBox.Instance.DisplayWarning("Are you sure you want to clear this card?",ConfirmClearCard);
-    }
-
-    void ConfirmClearCard()
-    {
-        SelectableItem.SelectedItem?.DeselectItem();
-        ClearElements();
-        cardNameInput.text = "";
-    }
-
+   
     #region Imported File Management
     
     public void RefreshCardList()
@@ -263,11 +269,6 @@ public class BombsController : MonoBehaviour
             ImagePaths.Add(indexer,Path.GetFileName(data.Item2));
             AddImageSelectionPreview(data.Item1, indexer);
             indexer++;
-        }
-
-        if (indexer == 0)
-        {
-            print("No images");
         }
     }
 

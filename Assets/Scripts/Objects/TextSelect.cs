@@ -142,21 +142,21 @@ public class TextSelect : SelectableItem
     private void ChangeText(string newText)
     {
         _text.text = newText;
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
     
     private void ChangeTextAlignment(TextAlignmentOptions alignment)
     {
         _text.alignment = alignment;
         _alignment = alignment.ToString();
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     public void ChangeFont(TMP_FontAsset font)
     {
         _text.font = font;
         _fontFamily = _dropdown.value.ToString();
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     public void ChangeFontSize(string size)
@@ -170,7 +170,7 @@ public class TextSelect : SelectableItem
         if (i <= 0) return;
         _text.fontSize = i;
         _fontSize = i.ToString();
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     

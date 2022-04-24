@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using JimJam.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _layerDown, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill;
     private TMP_InputField _scaleXInput, _scaleYInput;
     private Toggle _flipX, _flipY, _lock;
+    private List<Selectable> _selectables = new List<Selectable>();
     
     private Selection _selectionBox;
     private RectTransform _parentRect;
@@ -41,6 +43,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         Rect                    = GetComponent<RectTransform>();
         _resetScale             = Rect.sizeDelta;
         _resetPosition          = Rect.anchoredPosition;
+        
         _rotationSlider         = GameObject.FindWithTag("ElementRotationSlider").GetComponent<Slider>();
         _scaleXInput            = GameObject.FindWithTag("SetScaleX").GetComponent<TMP_InputField>();
         _scaleYInput            = GameObject.FindWithTag("SetScaleY").GetComponent<TMP_InputField>();
@@ -57,6 +60,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _flipX                  = GameObject.FindWithTag("ImageFlipX").GetComponent<Toggle>();
         _flipY                  = GameObject.FindWithTag("ImageFlipY").GetComponent<Toggle>();
         _lock                   = GameObject.FindWithTag("ObjectLock").GetComponent<Toggle>();
+        
         _selectionBox           = FindObjectOfType<Selection>();
         _colorPicker            = GameObject.FindWithTag("ColorPicker").GetComponent<ColorPicker>();
     }
@@ -211,21 +215,22 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _selectionBox.Reset();
     }
 
+    private void DeleteItem()
+    {
+        DeselectItem();
+        Destroy(this.gameObject);
+        
+        CardController.instance.recentlySaved = false;
+    }
+    
+    // Moved
     private void ChangeLayer(int dir)
     {
         var index = this.transform.GetSiblingIndex();
         index += dir;
         this.transform.SetSiblingIndex(index);
         
-        BombsController.instance.recentlySaved = false;
-    }
-    
-    private void DeleteItem()
-    {
-        DeselectItem();
-        Destroy(this.gameObject);
-        
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     private void Rotate(float r)
@@ -236,7 +241,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         Rect.rotation = Quaternion.Euler(rot);
         _rotation = (int)rot.z;
         
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     private void Stretch(int fill)
@@ -253,7 +258,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _scaleXInput.text = Rect.sizeDelta.x.ToString();
         _scaleYInput.text = Rect.sizeDelta.y.ToString();
         
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
     
     private void ScaleX(string incomingSizeX)
@@ -265,7 +270,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         scale.x = s;
         Rect.sizeDelta = scale;
         GetBounds();
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
     
     private void ScaleY(string incomingSizeY)
@@ -277,7 +282,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         scale.y = s;
         Rect.sizeDelta = scale;
         GetBounds();
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     private void CenterAlignObject(int alignment)
@@ -288,7 +293,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         else if (alignment == 1)
             pos.y = 0;
         Rect.anchoredPosition = pos;
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
     
     private void ToggleFlipX(bool state)
@@ -298,7 +303,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         var s = transform.localScale;
         s.x = Mathf.Abs(s.x) * mod;
         transform.localScale = s;
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     private void ToggleFlipY(bool state)
@@ -308,18 +313,18 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         var s = transform.localScale;
         s.y = Mathf.Abs(s.y) * mod;
         transform.localScale = s;
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     private void ToggleLock(bool state)
     {
         _draggable.enabled = !(_isLocked = state);
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     public virtual void SetColor(string hexValue)
     {
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
     
     private void ResetScale()
@@ -327,13 +332,13 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         Rect.sizeDelta = _resetScale;
         _scaleXInput.text = Rect.sizeDelta.x.ToString();
         _scaleYInput.text = Rect.sizeDelta.y.ToString();
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     private void ResetPosition()
     {
         Rect.anchoredPosition = _resetPosition;
-        BombsController.instance.recentlySaved = false;
+        CardController.instance.recentlySaved = false;
     }
 
     protected virtual void ToggleControls(bool state)
