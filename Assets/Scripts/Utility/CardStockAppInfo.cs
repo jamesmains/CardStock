@@ -6,5 +6,5 @@ using UnityEngine;
 [Serializable]
 public static class CardStockAppInfo
 {
-    public static string AppVersion = "CardStock v1.0.0 RELEASE";
+    public static string AppVersion = "CardStock v1.1.0 Release";
 }

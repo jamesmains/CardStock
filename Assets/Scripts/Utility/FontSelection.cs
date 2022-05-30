@@ -10,15 +10,25 @@ using UnityEngine;
 public class FontSelection : MonoBehaviour
 {
     [SerializeField] private List<TMP_FontAsset> fonts = new List<TMP_FontAsset>();
+    [SerializeField] private TMP_FontAsset defaultFont;
     private TMP_Dropdown _dropdown;
+
+    private void Awake()
+    {
+        _dropdown = GetComponent<TMP_Dropdown>();
+    }
 
     private void Start()
     {
+        
         RefreshList();
     }
 
     public void RefreshList()
     {
+        fonts.Clear();
+        fonts.Add(defaultFont);
+        _dropdown.Hide();
         string fontsFilePath = PathTarget.Fonts;
         var temp = Directory.GetFiles(fontsFilePath).Where(o => o.Contains(".ttf") && !o.Contains(".meta")).ToList();
         List<TMP_FontAsset> tempFonts = new List<TMP_FontAsset>();
@@ -31,8 +41,6 @@ public class FontSelection : MonoBehaviour
             f.name = s;
             fonts.Add(f);
         }
-        
-        _dropdown = GetComponent<TMP_Dropdown>();
         _dropdown.options.Clear();
         foreach(var font in fonts)
             _dropdown.options.Add(new TMP_Dropdown.OptionData(font.name));
@@ -58,5 +66,11 @@ public class FontSelection : MonoBehaviour
         var text = TextSelect.SelectedText;
         
         text.ChangeFont(fonts[_dropdown.value]);
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if(hasFocus)
+            RefreshList();
     }
 }

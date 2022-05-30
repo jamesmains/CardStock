@@ -13,40 +13,44 @@ public class CardController : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] private GameObject newImageObject;
     [SerializeField] private GameObject newTextObject;
-    [SerializeField] private GameObject imageSelectionPreviewObject;
-    [SerializeField] private GameObject filelistObject;
+    [SerializeField] private GameObject objectLayerListItem;
     
     [Header("Containers")]
     [SerializeField] private Transform cardContainer;
-    [SerializeField] private Transform imageSelectionContainer;
-    [SerializeField] private Transform fileListContainer;
+    [SerializeField] private Transform layerContainer;
+    [SerializeField] private Image cardBackground;
 
     [Header("Current Card Information")]
     [SerializeField] private TMP_InputField cardNameInput;
+    [SerializeField] private TextMeshProUGUI exportPathDisplay;
+    [SerializeField] private TextMeshProUGUI savePathDisplay;
+    
+    private string _exportPath;
+    private string _savePath;
     [HideInInspector]
     public List<SelectableItem> _items;
-    
-    private Dictionary<int, string> ImagePaths = new Dictionary<int, string>();
+    private bool _onlyShowExposed;
+    private List<LayerListObject> layerList = new List<LayerListObject>();
     private FileListObject _currentFileSelection;
-    private List<string> _loadedCards = new List<string>();
     private string _editingCard;
-    
-    [HideInInspector]
-    public List<Texture2D> ImageTextures = new List<Texture2D>();
-
     [HideInInspector] 
     public bool recentlySaved = true;
-
     public static CardController instance;
+    
     private void Awake()
     {
+        _savePath = PlayerPrefs.GetString("SavePath");
+        _exportPath = PlayerPrefs.GetString("ExportPath");
+        VerifyExportPath();
+        VerifySavePath();
+        
         if (instance == null)
             instance = this;
         else if (instance!=null)
             Destroy(this);
         
-        RefreshImageList();
-        RefreshCardList();
+        ClearLayerItems();
+        //RefreshImageList();
         recentlySaved = true;
     }
 
@@ -76,45 +80,25 @@ public class CardController : MonoBehaviour
         var item = o.GetComponentInChildren<SelectableItem>();
         _items.Add(item);
         item.SelectItem();
+        AddLayerItem(item);
     }
 
-    #region Card Functions
-
-    private void SelectCard(FileListObject incomingSelection)
+    public void LoadCard(string filePath)
     {
-        if (_currentFileSelection)
-        {
-            if (incomingSelection == _currentFileSelection)
-            {
-                //if (DateTime.Now.Millisecond < 0.1)
-                //{
-                //    
-                //}
-                return;
-            }
-            _currentFileSelection.Deselect();
-        }
-
-        _currentFileSelection = incomingSelection;
-    }
-    
-    public void LoadCard()
-    {
-        if (_currentFileSelection == null)
-        {
-            WarningMessageBox.Instance.DisplayWarning("Please select card...");
-            return;
-        }
-
         if (!recentlySaved)
         {
             WarningMessageBox.Instance.DisplayWarning("You have unsaved changes. Load anyways?"
-            , ConfirmLoad);
+                , delegate { ConfirmLoad(filePath); });
             return;
         }
         ClearElements();
-        var elements = SaveLoadCardElements.Load(_currentFileSelection.cardName);
-        cardNameInput.text = _currentFileSelection.cardName;
+        ClearLayerItems();
+        
+        var elements = SaveLoadCardElements.Load(filePath);
+        var cardName = Path.GetFileNameWithoutExtension(filePath);
+        
+        cardNameInput.text = cardName;
+        
         elements = elements.OrderBy(element => element.Layer).ToArray();
         for (var i = 0; i < elements.Length; i++)
         {
@@ -125,30 +109,27 @@ public class CardController : MonoBehaviour
                 AddImageObject();
             _items[i].LoadElement(element);
         }
+        ShowExposedObjects(_onlyShowExposed);
         if(SelectableItem.SelectedItem)
             SelectableItem.SelectedItem.DeselectItem();
+        if(LayerListObject.SelectedLayerListObject)
+            LayerListObject.SelectedLayerListObject.Deselect();
         recentlySaved = true;
-        _editingCard = _currentFileSelection.cardName;
-        TimedInfoPrompt.single.DisplayTimedPrompt($"Loaded {_currentFileSelection.cardName}");
+        TimedInfoPrompt.single.DisplayTimedPrompt($"Loaded {cardName}");
     }
 
-    private void ConfirmLoad()
+    private void ConfirmLoad(string filePath)
     {
         recentlySaved = true;
-        LoadCard();
+        LoadCard(filePath);
     }
 
     public void SaveCard()
     {
+        // todo - update
         if (cardNameInput.text == String.Empty)
         {
             WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
-            return;
-        }
-
-        if (cardNameInput.text != _editingCard && _loadedCards.Contains(cardNameInput.text))
-        {
-            WarningMessageBox.Instance.DisplayWarning("Card with this name already exists. Overwrite it?", ConfirmSaveCard);
             return;
         }
         else ConfirmSaveCard();
@@ -165,23 +146,8 @@ public class CardController : MonoBehaviour
         }
         SaveLoadCardElements.Save(elements.ToArray(),cardNameInput.text);
         recentlySaved = true;
-        RefreshCardList();
         
         TimedInfoPrompt.single.DisplayTimedPrompt($"Saved {cardNameInput.text}");
-    }
-
-    public void DeleteCard()
-    {
-        if (_currentFileSelection == null) return;
-        WarningMessageBox.Instance.DisplayWarning("Are you sure you wish to delete this card?",ConfirmDeleteCard);
-    }
-    
-    private void ConfirmDeleteCard()
-    {
-        File.Delete(PathTarget.Templates+_currentFileSelection.cardName+".card");
-        _currentFileSelection = null;
-        RefreshCardList();
-        recentlySaved = true;
     }
 
     public void ClearCard()
@@ -193,11 +159,66 @@ public class CardController : MonoBehaviour
     {
         SelectableItem.SelectedItem?.DeselectItem();
         ClearElements();
+        ClearLayerItems();
         cardNameInput.text = "";
     }
 
-    #endregion
-    
+    public void SetSavePath(string newPath)
+    {
+        _savePath = newPath;
+        VerifySavePath();
+    }
+
+    public void VerifySavePath()
+    {
+        if (!PlayerPrefs.HasKey("SavePath"))
+        {
+            PlayerPrefs.SetString("SavePath",PathTarget.Templates);
+        }
+        if (!Directory.Exists(_savePath))
+        {
+            PlayerPrefs.SetString("SavePath",PathTarget.Templates);
+            _savePath = PlayerPrefs.GetString("SavePath");
+            VerifySavePath();
+            return;
+        }
+        _savePath = _savePath.Replace('/', '\\');
+        if(_savePath[^1] == '\\')
+            _savePath = _savePath.Remove(_savePath.Length-1);
+        PlayerPrefs.SetString("SavePath",_savePath);
+        SaveLoadCardElements.CardSavePath = _savePath;
+        savePathDisplay.text = "Save Path: "+_savePath;
+    }
+
+    public void SetExportPath(string newPath)
+    {
+        _exportPath = newPath;
+        VerifyExportPath();
+    }
+
+    public void VerifyExportPath()
+    {
+        if (!PlayerPrefs.HasKey("ExportPath"))
+        {
+            PlayerPrefs.SetString("ExportPath",PathTarget.Cards);
+        }
+
+        PlayerPrefs.SetString("ExportPath",_exportPath);
+
+        if (!Directory.Exists(_exportPath))
+        {
+            PlayerPrefs.SetString("ExportPath",PathTarget.Cards);
+            _exportPath = PlayerPrefs.GetString("ExportPath");
+            VerifyExportPath();
+            return;
+        }
+        _exportPath = _exportPath.Replace('/', '\\');
+        if(_exportPath[^1] == '\\')
+            _exportPath = _exportPath.Remove(_exportPath.Length-1);
+        PlayerPrefs.SetString("ExportPath",_exportPath);
+        exportPathDisplay.text = "Export Path: "+_exportPath;
+    }
+
     public void TakeScreenShot()
     {
         if (cardNameInput.text == String.Empty)
@@ -205,19 +226,53 @@ public class CardController : MonoBehaviour
             WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
             return;
         }
+        
+        VerifyExportPath();
+
         if(SelectableItem.SelectedItem!=null) SelectableItem.SelectedItem.DeselectItem();
-        ScreenshotHandler.TakeScreenshot_Static(cardNameInput.text,PathTarget.Cards);
+        if(LayerListObject.SelectedLayerListObject) LayerListObject.SelectedLayerListObject.Deselect();
+        StartCoroutine(Screenshot());
+    }
+
+    IEnumerator Screenshot()
+    {
+        yield return new WaitForSeconds(0.05f);
+        ScreenshotHandler.TakeScreenshot_Static(cardNameInput.text,_exportPath);
         TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
     }
-    
-    void ClearFileList()
+
+    public void ShowExposedObjects(bool state)
     {
-        for (int i = 0; i < fileListContainer.childCount; i++)
+        _onlyShowExposed = state;
+        foreach (var layer in layerList)
         {
-            Destroy(fileListContainer.GetChild(i).gameObject);
+            if(!_onlyShowExposed)
+                layer.gameObject.SetActive(true);
+            else
+            {
+                bool toggle = layer.IsExposed();
+                layer.gameObject.SetActive(toggle);
+            }
         }
-        _loadedCards.Clear();
-        
+    }
+    
+    void AddLayerItem(SelectableItem parentItem)
+    {
+        if(LayerListObject.SelectedLayerListObject != null) LayerListObject.SelectedLayerListObject.Deselect();
+        var obj = Instantiate(objectLayerListItem, layerContainer);
+        var data = obj.GetComponent<LayerListObject>();
+        data.Setup(parentItem);
+        data.Select();
+        layerList.Add(data);
+    }
+    
+    void ClearLayerItems()
+    {
+        for (int i = 0; i < layerContainer.childCount; i++)
+        {
+            Destroy(layerContainer.GetChild(i).gameObject);
+        }
+        layerList.Clear();
     }
     
     void ClearElements()
@@ -229,64 +284,6 @@ public class CardController : MonoBehaviour
         _items.Clear();
     }
 
-   
-    #region Imported File Management
-    
-    public void RefreshCardList()
-    {
-        ClearFileList();
-        var temp = Directory.GetFiles(PathTarget.Templates).Where(o => o.Contains(".card") && !o.Contains(".meta")).ToList();
-        for (var index = 0; index < temp.Count; index++)
-        {
-            var card = temp[index];
-            var s = Path.GetFileNameWithoutExtension(card);
-            temp[index] = s;
-            var obj = Instantiate(filelistObject, fileListContainer).GetComponent<FileListObject>();
-            obj.Setup(s, delegate { SelectCard(obj); });
-        }
-        _loadedCards = temp;
-    }
-    
-    public void ConfirmImageSelection(int index)
-    {
-        var item = SelectableItem.SelectedItem.GetComponent<ImageSelect>();
-        item.ChangeFilePath(ImagePaths[index]);
-    }
-
-    public void RefreshImageList()
-    {
-        ImagePaths.Clear();
-        ImageTextures.Clear();
-        ClearPreviewContainer();
-        
-        var files = Directory.GetFiles(PathTarget.Resources);
-        int indexer = 0;
-        foreach (var file in files)
-        {
-            var data = LoadTexture(file);
-            if(data == null) continue;
-            ImageTextures.Add(data.Item1);
-            ImagePaths.Add(indexer,Path.GetFileName(data.Item2));
-            AddImageSelectionPreview(data.Item1, indexer);
-            indexer++;
-        }
-    }
-
-    private void AddImageSelectionPreview(Texture2D tex, int index)
-    {
-        var obj = Instantiate(imageSelectionPreviewObject, imageSelectionContainer);
-        obj.GetComponent<Image>().sprite = Sprite.Create(tex,new Rect(0, 0, tex.width, tex.height),new Vector2(0,0), 100);
-        obj.GetComponent<Button>().onClick.AddListener(delegate { ConfirmImageSelection(index); });
-    }
-
-    private void ClearPreviewContainer()
-    {
-        for (int i = 0; i < imageSelectionContainer.childCount; i++)
-        {
-            Destroy(imageSelectionContainer.GetChild(i).gameObject);
-        }
-    }
-    
     public Tuple<Texture2D,string> LoadTexture(string FilePath) 
     {
         Texture2D Tex2D;
@@ -302,5 +299,4 @@ public class CardController : MonoBehaviour
         return null;                                // Return null if load failed
     }
     
-    #endregion
 }

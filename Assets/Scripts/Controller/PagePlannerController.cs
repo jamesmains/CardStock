@@ -119,7 +119,8 @@ public class PagePlannerController : MonoBehaviour
         _cardSprites.Clear();
         ClearPreviewContainer();
         
-        var files = Directory.GetFiles(PathTarget.Cards);
+        var files = Directory.GetFiles(PathSetterWindow.ExportPath == null ? $"{Application.dataPath}/Card Stock/Cards/" : PathSetterWindow.ExportPath);
+        print(PathSetterWindow.ExportPath);
         int indexer = 0;
         foreach (var file in files)
         {

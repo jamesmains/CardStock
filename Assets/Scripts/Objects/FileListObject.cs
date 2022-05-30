@@ -3,46 +3,83 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class FileListObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class FileListObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    public string cardName;
-    [SerializeField] private Sprite unselectedIcon, selectedIcon;
-    [SerializeField] private Color hover, select, hidden;
-    [SerializeField] private TextMeshProUGUI nameDisplay;
+    public string objectName;
+    [SerializeField] protected Color hover, hidden, selected;
+    [SerializeField] private Image displayIcon;
+    public TextMeshProUGUI nameDisplay;
     
-    private Image _highlight;
-    private Button _button;
-    private bool _selected;
+    protected Image _highlight;
+    protected bool _selected;
+    protected UnityEvent _onSelect = new UnityEvent();
+    protected UnityEvent _onClick = new UnityEvent();
 
+    [SerializeField] private bool requireDoubleClick = true;
+    private bool _waitingForDoubleClick;
+
+    [HideInInspector]
+    public string filePath;
+
+    public int extraData;
+
+    public static FileListObject SelectedFileListObject;
     private void Awake()
     {
+        if(_onClick!=null)
+            _onClick.RemoveAllListeners();
         _highlight = GetComponent<Image>();
-        _button = GetComponent<Button>();
         _highlight.color = hidden;
         Deselect();
     }
 
-    public void Setup(string incomingCardName,Action<FileListObject> func)
+    private void Update()
     {
-        cardName = incomingCardName;
-        nameDisplay.text = cardName;
-        _button.onClick.AddListener(delegate { func(this); });
-        _button.onClick.AddListener(Select);
-    }
-    
-    public void Select()
-    {
-        _highlight.color = @select;
-        _selected = true;
+        if (Input.GetMouseButtonDown(1))
+        {
+            Deselect();
+        }
     }
 
-    public void Deselect()
+    public void Setup(string incomingObjectName,Action[] onClickCallbacks = null,Action[] onSelectCallbacks = null,Action<FileListObject> genericCallback = null, Sprite icon = null)
+    {
+        objectName = incomingObjectName;
+        if(nameDisplay)
+            nameDisplay.text = objectName;
+
+        if (displayIcon != null && icon != null)
+            displayIcon.sprite = icon;
+        
+        if (onClickCallbacks != null)
+            foreach (var callBack in onClickCallbacks)
+                _onClick.AddListener(delegate { callBack(); });
+        
+        if (onSelectCallbacks != null)
+            foreach (var callBack in onSelectCallbacks)
+                _onSelect.AddListener(delegate { callBack(); });
+        
+        if(genericCallback != null)
+            _onClick.AddListener(delegate { genericCallback(this); });
+    }
+
+    public virtual void Select()
+    {
+        if(SelectedFileListObject != null) if(SelectedFileListObject != this) SelectedFileListObject.Deselect();
+        _highlight.color = selected;
+        _selected = true;
+        SelectedFileListObject = this;
+        _onSelect.Invoke();
+    }
+    
+    public virtual void Deselect()
     {
         _highlight.color = hidden;
         _selected = false;
+        SelectedFileListObject = null;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -55,5 +92,32 @@ public class FileListObject : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     {
         if (!_selected)
             _highlight.color = hidden;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            Deselect();
+            return;
+        }
+        Select();
+        if (_waitingForDoubleClick || !requireDoubleClick)
+        {
+            _waitingForDoubleClick = false;
+            if(_onClick != null)
+                _onClick.Invoke();
+        }
+        else
+        {
+            StartCoroutine(DoubleClickCooldown());
+        }
+    }
+
+    IEnumerator DoubleClickCooldown()
+    {
+        _waitingForDoubleClick = true;
+        yield return new WaitForSeconds(.3f);
+        _waitingForDoubleClick = false;
     }
 }

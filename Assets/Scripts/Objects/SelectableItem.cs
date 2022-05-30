@@ -1,56 +1,66 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using JimJam.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 using JimJam.Interface;
 using TMPro;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class SelectableItem : MonoBehaviour, IPointerDownHandler
 {
-    protected Slider _rotationSlider;
-    private Button _resetScaleButton, _resetPositionButton, _layerUp,
-        _layerDown, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill;
-    private TMP_InputField _scaleXInput, _scaleYInput;
-    private Toggle _flipX, _flipY, _lock;
-    private List<Selectable> _selectables = new List<Selectable>();
+    // Controls
+    private Slider _rotationSlider;
+    private Button _resetScaleButton, _resetPositionButton, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill;
+    private TMP_InputField _scaleXInput, _scaleYInput, _objectNameInput;
+    private Toggle _flipX, _flipY, _lock, _expose;
     
+    // Refs
     private Selection _selectionBox;
     private RectTransform _parentRect;
+    private RectTransform _rect;
     private Draggable _draggable;
+    private ColorPicker _colorPicker;
     
+    // Temp Data
     private Vector2 _boundsX;
     private Vector2 _boundsY;
     private Vector2 _resetScale, _resetPosition;
     private bool _colorSelectionLock;
-    
-    protected bool _isFlippedX, _isFlippedY, _isLocked;
-    protected int _rotation;
-    protected string _color = "#ffffff";
 
+    // Data
+    private bool _isFlippedX;
+    private bool _isFlippedY;
+    private bool _isLocked;
+    private int _rotation;
+    protected string Color = "#ffffff";
+    protected string Name;
+    public bool isExposed;
+    
+    // Events
     [HideInInspector]
-    public int id;
+    public UnityEvent onSelect;
+    public UnityEvent onNameChange;
+    public UnityEvent onDelete;
     
     public static SelectableItem SelectedItem;
-    private ColorPicker _colorPicker;
-    protected RectTransform Rect;
-
+    
     protected virtual void Awake()
     {
         _parentRect             = transform.parent.GetComponent<RectTransform>();
         _draggable              = GetComponent<Draggable>();
-        Rect                    = GetComponent<RectTransform>();
-        _resetScale             = Rect.sizeDelta;
-        _resetPosition          = Rect.anchoredPosition;
+        _rect                    = GetComponent<RectTransform>();
+        _resetScale             = _rect.sizeDelta;
+        _resetPosition          = _rect.anchoredPosition;
         
         _rotationSlider         = GameObject.FindWithTag("ElementRotationSlider").GetComponent<Slider>();
         _scaleXInput            = GameObject.FindWithTag("SetScaleX").GetComponent<TMP_InputField>();
         _scaleYInput            = GameObject.FindWithTag("SetScaleY").GetComponent<TMP_InputField>();
+        _objectNameInput        = GameObject.FindWithTag("ObjectName").GetComponent<TMP_InputField>();
         _resetScaleButton       = GameObject.FindWithTag("ResetScale").GetComponent<Button>();
         _resetPositionButton    = GameObject.FindWithTag("ResetPosition").GetComponent<Button>();
-        _layerUp                = GameObject.FindWithTag("LayerUp").GetComponent<Button>();
-        _layerDown              = GameObject.FindWithTag("LayerDown").GetComponent<Button>();
         _delete                 = GameObject.FindWithTag("DeleteElement").GetComponent<Button>();
         _centerX                = GameObject.FindWithTag("CenterX").GetComponent<Button>();
         _centerY                = GameObject.FindWithTag("CenterY").GetComponent<Button>();
@@ -60,9 +70,15 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _flipX                  = GameObject.FindWithTag("ImageFlipX").GetComponent<Toggle>();
         _flipY                  = GameObject.FindWithTag("ImageFlipY").GetComponent<Toggle>();
         _lock                   = GameObject.FindWithTag("ObjectLock").GetComponent<Toggle>();
+        _expose                 = GameObject.FindWithTag("ObjectExpose").GetComponent<Toggle>();
         
         _selectionBox           = FindObjectOfType<Selection>();
         _colorPicker            = GameObject.FindWithTag("ColorPicker").GetComponent<ColorPicker>();
+        
+        _rotationSlider.minValue = 0;
+        _rotationSlider.maxValue = 360;
+        
+        SetName(this.gameObject.name);
     }
 
     private void Update()
@@ -77,51 +93,51 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
             CheckBounds();
     }
 
-    protected void GetBounds()
+    private void GetBounds()
     {
-        
-        float horizontal = _parentRect.sizeDelta.x / 2 + Rect.sizeDelta.x / 2;
-        float vertical = _parentRect.sizeDelta.y / 2 + Rect.sizeDelta.y / 2;
+        var sizeDelta = _parentRect.sizeDelta;
+        float horizontal = sizeDelta.x / 2 + sizeDelta.x / 2;
+        float vertical = sizeDelta.y / 2 + sizeDelta.y / 2;
         _boundsX.x = -horizontal;
         _boundsX.y = horizontal;
         _boundsY.x = -vertical;
         _boundsY.y = vertical;
         
-        SetBounds();
+        SetRotation();
     }
     
-    protected virtual void SetBounds()
+    protected virtual void SetRotation()
     {
-        _rotationSlider.minValue = 0;
-        _rotationSlider.maxValue = 360;
-        _rotationSlider.value = Rect.rotation.eulerAngles.z;
+        _rotationSlider.value = _rect.rotation.eulerAngles.z;
     }
-    
-    public virtual void CheckBounds()
+
+    protected virtual void CheckBounds()
     {
-        var pos = Rect.localPosition;
+        var localPosition = _rect.localPosition;
+        var pos = localPosition;
         pos.x = pos.x < _boundsX.x ? _boundsX.x : pos.x > _boundsX.y ? _boundsX.y : pos.x;
         pos.y = pos.y < _boundsY.x ? _boundsY.x : pos.y > _boundsY.y ? _boundsY.y : pos.y;
         
-        _selectionBox.HighlightArea(Rect.sizeDelta,Rect.localPosition);
+        _selectionBox.HighlightArea(_rect.sizeDelta,localPosition);
     }
 
     protected virtual void AssignCallbacks()
     {
         ClearCallbacks();
         
-        _scaleXInput.text = Rect.sizeDelta.x.ToString();
-        _scaleYInput.text = Rect.sizeDelta.y.ToString();
+        _scaleXInput.text = _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture);
+        _scaleYInput.text = _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
+        _objectNameInput.text = Name;
         _flipX.isOn = _isFlippedX;
         _flipY.isOn = _isFlippedY;
         _lock.isOn  = _isLocked;
+        _expose.isOn= isExposed;
          
         _scaleXInput.onValueChanged.AddListener(delegate { ScaleX(_scaleXInput.text); });
         _scaleYInput.onValueChanged.AddListener(delegate { ScaleY(_scaleYInput.text); });
+        _objectNameInput.onValueChanged.AddListener(delegate { SetName(_objectNameInput.text); });
         _resetScaleButton.onClick.AddListener(ResetScale);
         _resetPositionButton.onClick.AddListener(ResetPosition);
-        _layerUp.onClick.AddListener(delegate { ChangeLayer(1); });
-        _layerDown.onClick.AddListener(delegate { ChangeLayer(-1); });
         _delete.onClick.AddListener(DeleteItem);
         _centerX.onClick.AddListener(delegate { CenterAlignObject(0); });
         _centerY.onClick.AddListener(delegate { CenterAlignObject(1); });
@@ -133,6 +149,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _flipX.onValueChanged.AddListener(delegate { ToggleFlipX(_flipX.isOn); });
         _flipY.onValueChanged.AddListener(delegate { ToggleFlipY(_flipY.isOn); });
         _lock.onValueChanged.AddListener(delegate  { ToggleLock(_lock.isOn); });
+        _expose.onValueChanged.AddListener(delegate  { ToggleExpose(_expose.isOn); });
         
         _rotationSlider.onValueChanged.AddListener(SelectedItem.Rotate);
         ToggleControls(true);
@@ -143,13 +160,13 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _rotationSlider.onValueChanged.RemoveAllListeners();
         _scaleXInput.onValueChanged.RemoveAllListeners();
         _scaleYInput.onValueChanged.RemoveAllListeners();
+        _objectNameInput.onValueChanged.RemoveAllListeners();
         _resetScaleButton.onClick.RemoveAllListeners();
         _resetPositionButton.onClick.RemoveAllListeners();
         _flipX.onValueChanged.RemoveAllListeners();
         _flipY.onValueChanged.RemoveAllListeners();
         _lock.onValueChanged.RemoveAllListeners();
-        _layerUp.onClick.RemoveAllListeners();
-        _layerDown.onClick.RemoveAllListeners();
+        _expose.onValueChanged.RemoveAllListeners();
         _delete.onClick.RemoveAllListeners();
         _centerX.onClick.RemoveAllListeners();
         _centerY.onClick.RemoveAllListeners();
@@ -166,9 +183,9 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     protected Element GetBaseData()
     {
         var baseData = new Element();
-        var anchoredPosition = Rect.anchoredPosition;
-        var sizeDelta = Rect.sizeDelta;
-        baseData.Layer = Rect.GetSiblingIndex();
+        var anchoredPosition = _rect.anchoredPosition;
+        var sizeDelta = _rect.sizeDelta;
+        baseData.Layer = _rect.GetSiblingIndex();
         baseData.PositionX = anchoredPosition.x;
         baseData.PositionY = anchoredPosition.y;
         baseData.ScaleX = sizeDelta.x;
@@ -177,7 +194,9 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         baseData.FlippedX = _isFlippedX;
         baseData.FlippedY = _isFlippedY;
         baseData.Locked   = _isLocked;
-        baseData.Color = _color;
+        baseData.Color = Color;
+        baseData.Name = Name;
+        baseData.Exposed = isExposed;
         return baseData;
     }
     
@@ -185,24 +204,27 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     {
         Vector2 pos = new Vector2(data.PositionX, data.PositionY);
         Vector2 scale = new Vector2(data.ScaleX, data.ScaleY);
-        Rect.anchoredPosition = pos;
-        Rect.sizeDelta = scale;
-        _color = data.Color;
+        _rect.anchoredPosition = pos;
+        _rect.sizeDelta = scale;
+        Color = data.Color;
+        Name = data.Name;
+        isExposed = data.Exposed;
         ToggleFlipX(data.FlippedX);
         ToggleFlipY(data.FlippedY);
         ToggleLock(data.Locked);
         Rotate(data.Rotation);
+        SetName(Name);
     }
     
     public virtual void SelectItem()
     {
         if (SelectedItem == this) return;
         if (SelectedItem != null) SelectedItem.DeselectItem();
-       
         SelectedItem = this;
-        ColorUtility.TryParseHtmlString(_color, out var c);
+        ColorUtility.TryParseHtmlString(Color, out var c);
         _colorPicker.color = c;
         
+        onSelect.Invoke();
         AssignCallbacks();
         GetBounds();
     }
@@ -220,11 +242,11 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         DeselectItem();
         Destroy(this.gameObject);
         
+        onDelete.Invoke();
         CardController.instance.recentlySaved = false;
     }
     
-    // Moved
-    private void ChangeLayer(int dir)
+    public void ChangeLayer(int dir)
     {
         var index = this.transform.GetSiblingIndex();
         index += dir;
@@ -236,9 +258,9 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private void Rotate(float r)
     {
         if (SelectedItem != this) return;
-        var rot = Rect.rotation.eulerAngles;
+        var rot = _rect.rotation.eulerAngles;
         rot.z = r;
-        Rect.rotation = Quaternion.Euler(rot);
+        _rect.rotation = Quaternion.Euler(rot);
         _rotation = (int)rot.z;
         
         CardController.instance.recentlySaved = false;
@@ -247,16 +269,16 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private void Stretch(int fill)
     {
         if (fill == 0)
-            ScaleX(_parentRect.sizeDelta.x.ToString());
+            ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
         else if (fill == 1)
-            ScaleY(_parentRect.sizeDelta.y.ToString());
+            ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
         else if (fill == 2)
         {
-            ScaleX(_parentRect.sizeDelta.x.ToString());
-            ScaleY(_parentRect.sizeDelta.y.ToString());
+            ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
+            ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
         }
-        _scaleXInput.text = Rect.sizeDelta.x.ToString();
-        _scaleYInput.text = Rect.sizeDelta.y.ToString();
+        _scaleXInput.text = _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture);
+        _scaleYInput.text = _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
         
         CardController.instance.recentlySaved = false;
     }
@@ -266,9 +288,9 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         if (incomingSizeX == String.Empty) return;
         float s = float.Parse(incomingSizeX);
         if (SelectedItem != this) return;
-        var scale = Rect.sizeDelta;
+        var scale = _rect.sizeDelta;
         scale.x = s;
-        Rect.sizeDelta = scale;
+        _rect.sizeDelta = scale;
         GetBounds();
         CardController.instance.recentlySaved = false;
     }
@@ -278,21 +300,21 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         if (incomingSizeY == String.Empty) return;
         float s = float.Parse(incomingSizeY);
         if (SelectedItem != this) return;
-        var scale = Rect.sizeDelta;
+        var scale = _rect.sizeDelta;
         scale.y = s;
-        Rect.sizeDelta = scale;
+        _rect.sizeDelta = scale;
         GetBounds();
         CardController.instance.recentlySaved = false;
     }
 
     private void CenterAlignObject(int alignment)
     {
-        var pos = Rect.anchoredPosition;
+        var pos = _rect.anchoredPosition;
         if (alignment == 0)
             pos.x = 0;
         else if (alignment == 1)
             pos.y = 0;
-        Rect.anchoredPosition = pos;
+        _rect.anchoredPosition = pos;
         CardController.instance.recentlySaved = false;
     }
     
@@ -322,22 +344,38 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         CardController.instance.recentlySaved = false;
     }
 
+    private void ToggleExpose(bool state)
+    {
+        isExposed = state;
+    }
+
     public virtual void SetColor(string hexValue)
     {
         CardController.instance.recentlySaved = false;
     }
+
+    public string GetName()
+    {
+        return Name;
+    }
+    
+    public virtual void SetName(string incName)
+    {
+        Name = incName;
+        onNameChange.Invoke();
+    }
     
     private void ResetScale()
     {
-        Rect.sizeDelta = _resetScale;
-        _scaleXInput.text = Rect.sizeDelta.x.ToString();
-        _scaleYInput.text = Rect.sizeDelta.y.ToString();
+        _rect.sizeDelta = _resetScale;
+        _scaleXInput.text = _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture);
+        _scaleYInput.text = _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
         CardController.instance.recentlySaved = false;
     }
 
     private void ResetPosition()
     {
-        Rect.anchoredPosition = _resetPosition;
+        _rect.anchoredPosition = _resetPosition;
         CardController.instance.recentlySaved = false;
     }
 
@@ -346,13 +384,13 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _rotationSlider.interactable = state;
         _scaleXInput.interactable = state; 
         _scaleYInput.interactable = state;
+        _objectNameInput.interactable = state;
         _resetScaleButton.interactable = state;
         _resetPositionButton.interactable = state;
         _flipX.interactable = state;
         _flipY.interactable = state;
         _lock.interactable = state;
-        _layerUp.interactable = state;
-        _layerDown.interactable = state;
+        _expose.interactable = state;
         _delete.interactable = state;
         _centerX.interactable = state; 
         _centerY.interactable = state;

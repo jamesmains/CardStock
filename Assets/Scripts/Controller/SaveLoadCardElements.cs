@@ -7,11 +7,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public static class SaveLoadCardElements
 {
+    public static string CardSavePath;
     public static void Save(Element[] data, string fileName)
     {
         BinaryFormatter formatter = new BinaryFormatter();
-        string path = PathTarget.Templates+fileName+".card";
-        FileStream stream = new FileStream(path, FileMode.Create);
+        FileStream stream = new FileStream(CardSavePath+"\\"+fileName+".card", FileMode.Create);
         try
         {
             formatter.Serialize(stream, data);
@@ -25,13 +25,12 @@ public static class SaveLoadCardElements
         stream.Close();
     }
 
-    public static Element[] Load(string fileName)
+    public static Element[] Load(string filePath)
     {
-        string path = PathTarget.Templates+fileName+".card";
-        if (File.Exists(path))
+        if (File.Exists(filePath))
         {
             BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(path, FileMode.Open);
+            FileStream stream = new FileStream(filePath, FileMode.Open);
             Element[] data;
             try
             {
@@ -49,7 +48,7 @@ public static class SaveLoadCardElements
         }
         else
         {
-            Debug.LogError("Save file not found in " + path);
+            Debug.LogError("Save file not found in " + filePath);
             return null;
         }
     }

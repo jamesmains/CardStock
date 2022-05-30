@@ -72,7 +72,7 @@ namespace JimJam.Interface
                 shadowGfxRectTransform = newShadow.AddComponent<RectTransform>();
                 
                 newShadow.AddComponent<Image>();
-                newShadow.transform.parent = this.transform;
+                newShadow.transform.SetParent(this.transform);
                 newShadow.transform.SetSiblingIndex(0);
                 newShadow.transform.localScale = Vector3.one;
                 newShadow.name = "Shadow";

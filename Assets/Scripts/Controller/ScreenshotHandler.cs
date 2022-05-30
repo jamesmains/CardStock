@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class ScreenshotHandler : MonoBehaviour
@@ -59,8 +60,8 @@ public class ScreenshotHandler : MonoBehaviour
         
         renderResult.ReadPixels(rect, 0, 0);
         byte[] byteArray = renderResult.EncodeToPNG();
-        System.IO.File.WriteAllBytes(_exportPath + $"{_fileName}.png", byteArray);
-
+        System.IO.File.WriteAllBytes(_exportPath + $"\\{_fileName}.png", byteArray);
+        
         RenderTexture.ReleaseTemporary(renderTexture);
         _myCamera.targetTexture = null;
     }

@@ -10,7 +10,9 @@
 --------------------------------
 ----------Known Issues----------
 --------------------------------
-There is currently no way to set a default color per card object (not really an issue, but not convienent)
+
+There is currently no way to set a default color per card object (not really an issue, but not convenient)
+Images take a really long time to refresh
 
 --------------------------------
 --------------Wants-------------
@@ -63,5 +65,28 @@ Patch Notes 1.0.0
 
 Patch Notes 1.1.x
 
-Bug Fixes:
+Layers!
+- Now objects are shown as layers in the new layer window in the bottom left
+- Objects can be selected and rearranged from this layer window
+
+Exposed objects!
+- You can now mark an object as exposed, then toggle the expose option in the new layers section to only show exposed objects
+
+UI and File Management Overhaul!
+- Files such as exports, resources, and cards can be stored, saved, and exported to any layer of folder now instead of all laying at the top layer of their respective folder
+
+Text Objects:
+- Added new options: bold, italics, underline, 3 new alignment options, auto sizing
+~ Fixed bugs related to rich text options
+
+Image Objects:
+- Added new option, filter mode
+~ Fixed image selection window so it no longer obscures the card
+
+The board builder is not exactly functional but more of a proof of concept at this stage. Don't recommend using it.
+The GUI for page planner is not final and will be revised in a future update.
+
+General Bug Fixes and Quality of Life Changes:
  * Fixed bug that made the user unable to click through images if they're locked while being loaded
+ * Selection box is no longer as intrusive as it was
+ * Image selection is sped up once images are loaded
