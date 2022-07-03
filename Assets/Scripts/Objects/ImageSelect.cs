@@ -13,7 +13,7 @@ public class ImageSelect : SelectableItem
     // Controls
     private Button _selectImage;
     private TMP_Dropdown _filterModeDropdown;
-    private SmoothMoves _windowMover;
+    private SmoothMoves _windowMover; //unused
 
     // Refs
     private SmoothMoves _imageSelection;
@@ -60,8 +60,6 @@ public class ImageSelect : SelectableItem
         base.ToggleControls(state);
         _selectImage.interactable = state;
         _filterModeDropdown.interactable = state;
-        if(state)_windowMover.GotoEnd();
-        else _windowMover.GotoStart();
     }
 
     public override Element SaveElement()

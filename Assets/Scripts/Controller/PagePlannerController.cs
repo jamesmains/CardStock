@@ -120,7 +120,6 @@ public class PagePlannerController : MonoBehaviour
         ClearPreviewContainer();
         
         var files = Directory.GetFiles(PathSetterWindow.ExportPath == null ? $"{Application.dataPath}/Card Stock/Cards/" : PathSetterWindow.ExportPath);
-        print(PathSetterWindow.ExportPath);
         int indexer = 0;
         foreach (var file in files)
         {
@@ -193,7 +192,6 @@ public class PagePlannerController : MonoBehaviour
                 break;
             pageCards.Add(_cardSprites[i]);
         }
-        //ScreenshotHandler.TakeScreenshot_Static($"{batchNameEditor.text}_{_pageIndex}",Application.dataPath+"/Card Stock/Pages/");
         _pageExporter.ExportPage(pageCards,$"{batchNameEditor.text}_{_pageIndex}");
     }
 

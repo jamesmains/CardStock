@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 public static class SaveLoadCardElements
 {
     public static string CardSavePath;
-    public static void Save(Element[] data, string fileName)
+    public static void Save(Tuple<Element[],string> data, string fileName)
     {
         BinaryFormatter formatter = new BinaryFormatter();
         FileStream stream = new FileStream(CardSavePath+"\\"+fileName+".card", FileMode.Create);
@@ -25,16 +25,16 @@ public static class SaveLoadCardElements
         stream.Close();
     }
 
-    public static Element[] Load(string filePath)
+    public static Tuple<Element[],string> Load(string filePath)
     {
         if (File.Exists(filePath))
         {
             BinaryFormatter formatter = new BinaryFormatter();
             FileStream stream = new FileStream(filePath, FileMode.Open);
-            Element[] data;
+            Tuple<Element[],string> data;
             try
             {
-                data = formatter.Deserialize(stream) as Element[];
+                data = formatter.Deserialize(stream) as Tuple<Element[],string>;
                 
             }
             catch (Exception e)

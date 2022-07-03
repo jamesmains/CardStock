@@ -16,7 +16,7 @@ public class TextSelect : SelectableItem
     private FontSelection _fontSelection;
     private Toggle _autoSizeToggle;
     private TextMeshProUGUI _text;
-    private SmoothMoves _windowMover;
+    private SmoothMoves _windowMover; //unused
 
     // Data
     private string _alignmentHorizontal;
@@ -95,8 +95,6 @@ public class TextSelect : SelectableItem
         _styleItalics.interactable = state;
         _styleUnderline.interactable = state;
         _autoSizeToggle.interactable = state;
-        if(state)_windowMover.GotoEnd();
-        else _windowMover.GotoStart();
     }
 
     protected override void SetRotation()

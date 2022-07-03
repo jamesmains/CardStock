@@ -11,6 +11,7 @@ public class PathSetterWindow : FileExplorerWindow
     [SerializeField] private TextMeshProUGUI currentPathDisplay;
     public UnityEvent onSetSavePath;
     public UnityEvent onSetExportPath;
+    public UnityEvent onSetMassExportPath;
     private CardController _cardController;
 
     public static string ExportPath;
@@ -58,6 +59,16 @@ public class PathSetterWindow : FileExplorerWindow
             ExportPath = _currentPath;
         
         onSetExportPath.Invoke();
+        CloseWindow();
+    }
+
+    public void SetMassExportPath()
+    {
+        if (!Directory.Exists(_currentPath)) return;
+        if(_cardController!=null)
+            _cardController.SetMassExportPath(_currentPath);
+        
+        onSetMassExportPath.Invoke();
         CloseWindow();
     }
 }

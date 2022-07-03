@@ -11,7 +11,8 @@ public class FileExplorerWindow : MonoBehaviour
     [Header("Display Settings")] 
     [SerializeField] protected Sprite goBackIcon;
     [SerializeField] protected Sprite folderIcon;
-    [SerializeField] protected GameObject listObjectPrefab;
+    [SerializeField] protected GameObject fileObjectPrefab;
+    [SerializeField] protected GameObject directoryObjectPrefab;
     [SerializeField] protected Transform listContainer;
     
     [Header("Targeting")]
@@ -46,7 +47,7 @@ public class FileExplorerWindow : MonoBehaviour
         }
         if (_currentPath != _rootPath)
         {
-            var obj = Instantiate(listObjectPrefab, listContainer).GetComponent<FileListObject>();
+            var obj = Instantiate(directoryObjectPrefab, listContainer).GetComponent<FileListObject>();
             Action[] actions = new Action[1];
             actions[0] = delegate { GotoFolder(Directory.GetParent(_currentPath)?.ToString()); };
             obj.Setup("go back",actions,null,null,goBackIcon);
@@ -63,10 +64,10 @@ public class FileExplorerWindow : MonoBehaviour
         {
             foreach (var fileTypeTarget in fileTypeTargets)
             {
-                if (file.Contains(fileTypeTarget.fileType))
+                if (file.ToLower().Contains(fileTypeTarget.fileType.ToLower()))
                 {
                     var s = Path.GetFileNameWithoutExtension(file);
-                    var obj = Instantiate(listObjectPrefab, listContainer).GetComponent<FileListObject>();
+                    var obj = Instantiate(fileObjectPrefab, listContainer).GetComponent<FileListObject>();
                     obj.filePath = file;
                     _tempObject = obj;
                     SetupFile(obj,s,fileTypeTarget.fileIcon);
@@ -116,16 +117,13 @@ public class FileExplorerWindow : MonoBehaviour
         if (showDirectories)
         {
             var directories = Directory.GetDirectories(_currentPath);
-            // print($"{directories.Length} in {_currentPath}");
             foreach (var folder in directories)
             {
-                var obj = Instantiate(listObjectPrefab, listContainer).GetComponent<FileListObject>();
+                var obj = Instantiate(directoryObjectPrefab, listContainer).GetComponent<FileListObject>();
                 _tempDirectory = obj;
                 _tempDirectory.filePath = folder;
                 Action[] actions = new Action[1];
                 actions[0] = delegate { GotoFolder(folder); };
-                //return actions;
-                //obj.Setup(Path.GetFileNameWithoutExtension(folder),GetDirectoryClickActions(),GetDirectorySelectActions(),null,folderIcon);
                 obj.Setup(Path.GetFileNameWithoutExtension(folder),actions,GetDirectorySelectActions(),null,folderIcon);
             }
         }
@@ -155,7 +153,6 @@ public class FileExplorerWindow : MonoBehaviour
         else
             File.Delete(FileListObject.SelectedFileListObject.filePath);
         FileListObject.SelectedFileListObject.Deselect();
-        CardController.instance.VerifySavePath();
         RefreshList();
     }
     

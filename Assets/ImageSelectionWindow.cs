@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +13,13 @@ public class ImageSelectionWindow : FileExplorerWindow
     [SerializeField] private GameObject imageFolderPrefab;
     private List<string> _paths = new List<string>();
     private List<Sprite> _sprites = new List<Sprite>();
+    private List<Texture2D> _imageList = new List<Texture2D>();
+
+    [SerializeField] private Slider fileLoadSlider;
+    [SerializeField] private TextMeshProUGUI fileLoadCountDisplay;
+    [SerializeField] private ColorTinter fileLoadTinter;
+    private bool _canLoad = true;
+    private Texture2D _currentTexture;
 
     public void ConfirmImageSelection(FileListObject obj)
     {
@@ -22,18 +31,33 @@ public class ImageSelectionWindow : FileExplorerWindow
     protected override void GetFiles()
     {
         var files = Directory.GetFiles(_currentPath).Where(o => !o.Contains(".meta")).ToList();
-        var indexer = 0;
+        fileLoadSlider.maxValue = files.Count;
+        fileLoadSlider.value = 1;
+        fileLoadCountDisplay.text = $"{fileLoadSlider.value}/{fileLoadSlider.maxValue}";
         _paths.Clear();
         _sprites.Clear();
+        foreach(var img in _imageList)
+            Destroy(img);
+        _imageList.Clear();
+        if(!_canLoad)
+            StopAllCoroutines();
+        StartCoroutine(LoadFiles(files));
+    }
+
+    IEnumerator LoadFiles(List<string> files)
+    {
+        _canLoad = false;
+        var indexer = 0;
+        fileLoadTinter.ToggleFade(false);
         foreach (var file in files)
         {
             foreach (var fileTypeTarget in fileTypeTargets)
             {
-                if (file.Contains(fileTypeTarget.fileType))
+                if (file.ToLower().Contains(fileTypeTarget.fileType.ToLower()))
                 {
                     
                     var s = Path.GetFileNameWithoutExtension(file);
-                    var obj = Instantiate(listObjectPrefab, listContainer).GetComponent<FileListObject>();
+                    var obj = Instantiate(fileObjectPrefab, listContainer).GetComponent<FileListObject>();
                    
                     obj.extraData = indexer;
                     indexer++;
@@ -42,13 +66,22 @@ public class ImageSelectionWindow : FileExplorerWindow
                     obj.filePath = file;
                     _tempObject = obj;
                     
-                    var tex = LoadTexture(file);
-                    var sprite = Sprite.Create(tex,new Rect(0, 0, tex.width, tex.height),new Vector2(0,0), 100);
+                    yield return StartCoroutine(LoadTexture(file));
+                    var sprite = Sprite.Create(_currentTexture,new Rect(0, 0, _currentTexture.width, _currentTexture.height),new Vector2(0,0), 100);
                     _sprites.Add(sprite);
                     SetupFile(obj,s,sprite);
+                    
+                    _currentTexture = null;
+                    fileLoadSlider.value++;
+                    fileLoadCountDisplay.text = $"{fileLoadSlider.value}/{fileLoadSlider.maxValue}";
+                    
+                    yield return null;
                 }
             }
         }
+
+        fileLoadTinter.ToggleFade(true);
+        _canLoad = true;
     }
 
     protected override void GetDirectories()
@@ -77,21 +110,23 @@ public class ImageSelectionWindow : FileExplorerWindow
         return actions;
     }
 
-    public Texture2D LoadTexture(string FilePath)
+    IEnumerator LoadTexture(string filePath)
     {
         Texture2D Tex2D;
-        byte[] FileData;
+        byte[] fileData;
 
-        if (File.Exists(FilePath))
+        if (File.Exists(filePath))
         {
-            FileData = File.ReadAllBytes(FilePath);
+            fileData = File.ReadAllBytes(filePath);
             Tex2D = new Texture2D(2, 2); // Create new "empty" texture
             Tex2D.filterMode = FilterMode.Point;
-            if (Tex2D.LoadImage(FileData)) // Load the imagedata into the texture (size is set automatically)
-                return Tex2D; // If data = readable -> return texture
+            if (Tex2D.LoadImage(fileData)) // Load the image data into the texture (size is set automatically)
+            {
+                _imageList.Add(Tex2D);
+                _currentTexture = Tex2D; // If data = readable -> set/return texture
+                yield break;
+            }
         }
-
-        return null; // Return null if load failed
     }
 }
 
