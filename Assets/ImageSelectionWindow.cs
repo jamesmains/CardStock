@@ -14,10 +14,6 @@ public class ImageSelectionWindow : FileExplorerWindow
     private List<string> _paths = new List<string>();
     private List<Sprite> _sprites = new List<Sprite>();
     private List<Texture2D> _imageList = new List<Texture2D>();
-
-    [SerializeField] private Slider fileLoadSlider;
-    [SerializeField] private TextMeshProUGUI fileLoadCountDisplay;
-    [SerializeField] private ColorTinter fileLoadTinter;
     private bool _canLoad = true;
     private Texture2D _currentTexture;
 
@@ -31,9 +27,12 @@ public class ImageSelectionWindow : FileExplorerWindow
     protected override void GetFiles()
     {
         var files = Directory.GetFiles(_currentPath).Where(o => !o.Contains(".meta")).ToList();
-        fileLoadSlider.maxValue = files.Count;
-        fileLoadSlider.value = 1;
-        fileLoadCountDisplay.text = $"{fileLoadSlider.value}/{fileLoadSlider.maxValue}";
+        var canDoTask = BatchTaskDisplay.single.SetupTask("Loading Images",1,files.Count);
+        if (!canDoTask)
+        {
+            TimedInfoPrompt.single.DisplayTimedPrompt("Busy with task...");
+            return;
+        }
         _paths.Clear();
         _sprites.Clear();
         foreach(var img in _imageList)
@@ -48,7 +47,6 @@ public class ImageSelectionWindow : FileExplorerWindow
     {
         _canLoad = false;
         var indexer = 0;
-        fileLoadTinter.ToggleFade(false);
         foreach (var file in files)
         {
             foreach (var fileTypeTarget in fileTypeTargets)
@@ -72,15 +70,14 @@ public class ImageSelectionWindow : FileExplorerWindow
                     SetupFile(obj,s,sprite);
                     
                     _currentTexture = null;
-                    fileLoadSlider.value++;
-                    fileLoadCountDisplay.text = $"{fileLoadSlider.value}/{fileLoadSlider.maxValue}";
+                    BatchTaskDisplay.single.Tick();
                     
                     yield return null;
                 }
             }
         }
 
-        fileLoadTinter.ToggleFade(true);
+        BatchTaskDisplay.single.EndTask();
         _canLoad = true;
     }
 

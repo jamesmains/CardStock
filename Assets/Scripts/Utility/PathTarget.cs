@@ -14,7 +14,10 @@ public static class PathTarget
         Fonts,
         Cards,
         Pages,
-        Boards
+        Boards,
+        Images,
+        Exports,
+        TSVSheets
     }
     
     public static string App = $"{Application.dataPath}/Card Stock/";
@@ -24,6 +27,9 @@ public static class PathTarget
     public static string Cards = $"{Application.dataPath}/Card Stock/Cards/";
     public static string Pages = $"{Application.dataPath}/Card Stock/Pages/";
     public static string Boards = $"{Application.dataPath}/Card Stock/Boards/";
+    public static string Images = $"{Application.dataPath}/Card Stock/Images/";
+    public static string Exports = $"{Application.dataPath}/Card Stock/Exports/";
+    public static string TSVSheets = $"{Application.dataPath}/Card Stock/TSVSheets/";
 
     static PathTarget()
     {
@@ -34,6 +40,9 @@ public static class PathTarget
         CheckPath(Cards);
         CheckPath(Pages);
         CheckPath(Boards);
+        CheckPath(Images);
+        CheckPath(Exports);
+        CheckPath(TSVSheets);
     }
 
     public static void CheckPath(string path)
@@ -51,6 +60,9 @@ public static class PathTarget
         4 => Cards,
         5 => Pages,
         6 => Boards,
+        7 => Images,
+        8 => Exports,
+        9 => TSVSheets,
         _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
     };
 }

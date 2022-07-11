@@ -23,7 +23,7 @@ public class FileExplorerWindow : MonoBehaviour
     protected string _currentPath;
     protected FileListObject _tempObject;
     protected FileListObject _tempDirectory;
-
+    
     private void OnEnable()
     {
         _rootPath = PathTarget.GetPath((int)rootPath);

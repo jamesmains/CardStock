@@ -82,6 +82,17 @@ public class ImageSelect : SelectableItem
         SetColor(data.Color);
         SetFilterMode(_filterMode);
     }
+    
+    // protected override void Copy()
+    // {
+    //     base.Copy();
+    //     print(CopyItemData.ExtraData[0]);
+    // }
+    //
+    // protected override void Paste()
+    // {
+    //     base.Paste();
+    // }
 
     public override void SetColor(string hexValue)
     {

@@ -34,7 +34,6 @@ public class FileListObject : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             _onClick.RemoveAllListeners();
         _highlight = GetComponent<Image>();
         _highlight.color = hidden;
-        Deselect();
     }
 
     private void Update()
@@ -72,6 +71,7 @@ public class FileListObject : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _highlight.color = selected;
         _selected = true;
         SelectedFileListObject = this;
+        print(SelectedFileListObject);
         _onSelect.Invoke();
     }
     

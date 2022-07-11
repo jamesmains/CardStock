@@ -201,7 +201,7 @@ public class TextSelect : SelectableItem
         _text.color = c;
     }
     
-    private void ChangeText(string newText)
+    public void ChangeText(string newText)
     {
         _baseText = newText;
         _text.text = GetStylePrefix() + newText;

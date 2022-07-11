@@ -11,6 +11,7 @@ public class Draggable : MonoBehaviour, IDragHandler
     public static Draggable DraggedItem;
     private Canvas _canvas;
     private RectTransform _rect;
+    public UnityEvent onDrag;
 
     private void Awake()
     {
@@ -21,6 +22,7 @@ public class Draggable : MonoBehaviour, IDragHandler
     public void OnDrag(PointerEventData eventData)
     {
         _rect.anchoredPosition += eventData.delta / _canvas.scaleFactor;
+        onDrag.Invoke();
         CardController.instance.recentlySaved = false;
     }
 }

@@ -18,7 +18,6 @@ Images take a really long time to refresh
 --------------Wants-------------
 --------------------------------
 
-Duplicate Card Element
 Crop Card Image Element
 
 --------------------------------
@@ -57,11 +56,15 @@ Patch Notes 0.9.x
 - Improved page export on page planner
 - Added tabbing functionality
 
+------------------------------------------------------------------------------------
+
 Patch Notes 1.0.0
   ___         _                           _ 
  | _ \  ___  | |  ___   __ _   ___  ___  | |
  |   / / -_) | | / -_) / _` | (_-< / -_) |_|
  |_|_\ \___| |_| \___| \__,_| /__/ \___| (_)
+
+------------------------------------------------------------------------------------
 
 Patch Notes 1.1.x
 
@@ -90,3 +93,45 @@ General Bug Fixes and Quality of Life Changes:
  * Fixed bug that made the user unable to click through images if they're locked while being loaded
  * Selection box is no longer as intrusive as it was
  * Image selection is sped up once images are loaded
+ 
+ 
+------------------------------------------------------------------------------------
+
+Patch Notes 1.2.x
+
+Tab Seperated Value (TSV) sheet support!
+ - New folder in project folder for TSV files
+ - Auto detects data length
+ - Auto name option
+ - Select TSV file, assign tags, and save as cards or batch export cards using the TSV data
+    -> currently there is no option to skip header
+    
+Added Support for Tabletop Sim page exports!
+ - Add up to 70 cards per page
+ - New preview view when hovering over cards
+ 
+Added Template System
+ - Select a template card to inherit non-changing elements
+ - Quickly edit a single card to affect many
+ 
+Mass Exporting
+ - Quickly export an entire directory of cards (under file in head bar)
+ 
+Copy Paste Elements
+ - New buttons in action bar to copy and paste elements
+ 
+Better Position & Scale Control
+ - New position options
+ - Refined how reset scale and reset position works so they go back to last saved state
+ 
+UI Overhaul
+Once again the UI has been redone to minimize confusion and streamline common actions
+ - Better grouping for buttons
+ - Made the application a resizeable window
+ - Image pane no longer hovers leaving controls only half exposed
+
+General Bug Fixes and Quality of Life Changes:
+ * Fixed critical memory leak associated with refreshing image resources
+ * Fixed issue with adding an object when Show Exposed Only was toggled on would appear in the layer list
+ * Fixed issue where marking an object as exposed wouldn't update the layer list
+ * Fixed sluggish / non-responsive scroll windows

@@ -100,9 +100,10 @@ GameObject:
   - component: {fileID: 8711613777818933901}
   - component: {fileID: 8711613777818933899}
   - component: {fileID: 8711613777818933900}
+  - component: {fileID: 1098578094113145139}
   m_Layer: 5
   m_Name: CardDisplay
-  m_TagString: Untagged
+  m_TagString: CardSprite
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -124,8 +125,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 31}
-  m_SizeDelta: {x: -66.66667, y: -62}
+  m_AnchoredPosition: {x: -0.0000076294, y: 2.51}
+  m_SizeDelta: {x: -26.255, y: -5.0199}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8711613777818933899
 CanvasRenderer:
@@ -165,6 +166,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1098578094113145139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8711613777818933902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30a0b2cb7da5b5748b99d60c8a11357f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8711613778964206520
 GameObject:
   m_ObjectHideFlags: 0
@@ -240,8 +253,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 16777215
+  m_fontColor: {r: 1, g: 1, b: 1, a: 0}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

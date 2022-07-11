@@ -71,4 +71,15 @@ public class PathSetterWindow : FileExplorerWindow
         onSetMassExportPath.Invoke();
         CloseWindow();
     }
+
+    public void SetTSVSheetPath()
+    {
+        print(FileListObject.SelectedFileListObject);
+        if (!File.Exists(FileListObject.SelectedFileListObject?.filePath)) return;
+        var c = FindObjectOfType<CSVSheetController>();
+        c.SetFilePath(FileListObject.SelectedFileListObject.filePath);
+        c.GetData();
+        CloseWindow();
+    }
+    
 }

@@ -10,17 +10,16 @@ public class ColorTinter : MonoBehaviour
     [SerializeField] Image targetImage;
     private float _target;
 
-    public void ToggleFade(bool fadeOut)
+    public void ToggleFade(bool fadeOut, float delayTime = 0)
     {
         _target = fadeOut ? 1 : 0;
         StopAllCoroutines();
-        StartCoroutine(ProcessFade(fadeOut));
+        StartCoroutine(ProcessFade(delayTime));
     }
 
-    IEnumerator ProcessFade(bool delay = false)
+    IEnumerator ProcessFade(float delayTime)
     {
-        if (delay)
-            yield return new WaitForSeconds(.75f);
+        yield return new WaitForSeconds(delayTime);
         while (Math.Abs(targetImage.color.a - _target) > 0.000099f)
         {
             var c = targetImage.color;

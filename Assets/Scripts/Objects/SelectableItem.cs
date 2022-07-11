@@ -13,8 +13,8 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
 {
     // Controls
     private Slider _rotationSlider;
-    private Button _resetScaleButton, _resetPositionButton, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill;
-    private TMP_InputField _scaleXInput, _scaleYInput, _objectNameInput;
+    private Button _resetScaleButton, _resetPositionButton, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill, _copy, _paste;
+    private TMP_InputField _scaleXInput, _scaleYInput, _posXInput, _posYInput, _objectNameInput, _objectTag;
     private Toggle _flipX, _flipY, _lock, _expose;
     
     // Refs
@@ -29,12 +29,14 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private Vector2 _boundsY;
     private Vector2 _resetScale, _resetPosition;
     private bool _colorSelectionLock;
+    private bool _tempMoveLock = false;
 
     // Data
     private bool _isFlippedX;
     private bool _isFlippedY;
     private bool _isLocked;
     private int _rotation;
+    public int Tag;
     protected string Color = "#ffffff";
     protected string Name;
     public bool isExposed;
@@ -46,19 +48,27 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     public UnityEvent onDelete;
     
     public static SelectableItem SelectedItem;
+    public static SelectableItem CopyItem;
+    public static Element CopyItemData;
+    public static UnityEvent onSelectGlobal, onDeselectGlobal;
+    
     
     protected virtual void Awake()
     {
         _parentRect             = transform.parent.GetComponent<RectTransform>();
         _draggable              = GetComponent<Draggable>();
-        _rect                    = GetComponent<RectTransform>();
+        
+        _rect                   = GetComponent<RectTransform>();
         _resetScale             = _rect.sizeDelta;
         _resetPosition          = _rect.anchoredPosition;
         
         _rotationSlider         = GameObject.FindWithTag("ElementRotationSlider").GetComponent<Slider>();
         _scaleXInput            = GameObject.FindWithTag("SetScaleX").GetComponent<TMP_InputField>();
         _scaleYInput            = GameObject.FindWithTag("SetScaleY").GetComponent<TMP_InputField>();
+        _posXInput              = GameObject.FindWithTag("SetPosX").GetComponent<TMP_InputField>();
+        _posYInput              = GameObject.FindWithTag("SetPosY").GetComponent<TMP_InputField>();
         _objectNameInput        = GameObject.FindWithTag("ObjectName").GetComponent<TMP_InputField>();
+        _objectTag              = GameObject.FindWithTag("SetTag").GetComponent<TMP_InputField>();
         _resetScaleButton       = GameObject.FindWithTag("ResetScale").GetComponent<Button>();
         _resetPositionButton    = GameObject.FindWithTag("ResetPosition").GetComponent<Button>();
         _delete                 = GameObject.FindWithTag("DeleteElement").GetComponent<Button>();
@@ -67,6 +77,8 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _stretchX               = GameObject.FindWithTag("StretchX").GetComponent<Button>();
         _stretchY               = GameObject.FindWithTag("StretchY").GetComponent<Button>();
         _stretchFill            = GameObject.FindWithTag("StretchFill").GetComponent<Button>();
+        _copy                   = GameObject.FindWithTag("CopyElement").GetComponent<Button>();
+        _paste                  = GameObject.FindWithTag("PasteElement").GetComponent<Button>();
         _flipX                  = GameObject.FindWithTag("ImageFlipX").GetComponent<Toggle>();
         _flipY                  = GameObject.FindWithTag("ImageFlipY").GetComponent<Toggle>();
         _lock                   = GameObject.FindWithTag("ObjectLock").GetComponent<Toggle>();
@@ -77,8 +89,10 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         
         _rotationSlider.minValue = 0;
         _rotationSlider.maxValue = 360;
+        _draggable.onDrag.AddListener(UpdatePosition);
         
         SetName(this.gameObject.name);
+        SetTag("-1");
     }
 
     private void Update()
@@ -127,7 +141,10 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         
         _scaleXInput.text = _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture);
         _scaleYInput.text = _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
+        _posXInput.text   = _rect.anchoredPosition.x.ToString("0.0");
+        _posYInput.text   = _rect.anchoredPosition.y.ToString("0.0");
         _objectNameInput.text = Name;
+        _objectTag.text = Tag.ToString();
         _flipX.isOn = _isFlippedX;
         _flipY.isOn = _isFlippedY;
         _lock.isOn  = _isLocked;
@@ -135,7 +152,10 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
          
         _scaleXInput.onValueChanged.AddListener(delegate { ScaleX(_scaleXInput.text); });
         _scaleYInput.onValueChanged.AddListener(delegate { ScaleY(_scaleYInput.text); });
+        _posXInput.onValueChanged.AddListener(delegate { MoveX(_posXInput.text); });
+        _posYInput.onValueChanged.AddListener(delegate { MoveY(_posYInput.text); });
         _objectNameInput.onValueChanged.AddListener(delegate { SetName(_objectNameInput.text); });
+        _objectTag.onValueChanged.AddListener(delegate { SetTag(_objectTag.text); });
         _resetScaleButton.onClick.AddListener(ResetScale);
         _resetPositionButton.onClick.AddListener(ResetPosition);
         _delete.onClick.AddListener(DeleteItem);
@@ -145,6 +165,8 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _stretchY.onClick.AddListener(delegate { Stretch(1); });
         _stretchFill.onClick.AddListener(delegate { Stretch(2); });
         _stretchFill.onClick.AddListener(ResetPosition);
+        _copy.onClick.AddListener(Copy);
+        _paste.onClick.AddListener(Paste);
         
         _flipX.onValueChanged.AddListener(delegate { ToggleFlipX(_flipX.isOn); });
         _flipY.onValueChanged.AddListener(delegate { ToggleFlipY(_flipY.isOn); });
@@ -160,7 +182,10 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _rotationSlider.onValueChanged.RemoveAllListeners();
         _scaleXInput.onValueChanged.RemoveAllListeners();
         _scaleYInput.onValueChanged.RemoveAllListeners();
+        _posXInput.onValueChanged.RemoveAllListeners();
+        _posYInput.onValueChanged.RemoveAllListeners();
         _objectNameInput.onValueChanged.RemoveAllListeners();
+        _objectTag.onValueChanged.RemoveAllListeners();
         _resetScaleButton.onClick.RemoveAllListeners();
         _resetPositionButton.onClick.RemoveAllListeners();
         _flipX.onValueChanged.RemoveAllListeners();
@@ -173,6 +198,8 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _stretchX.onClick.RemoveAllListeners();
         _stretchY.onClick.RemoveAllListeners();
         _stretchFill.onClick.RemoveAllListeners();
+        _copy.onClick.RemoveAllListeners();
+        _paste.onClick.RemoveAllListeners();
     }
 
     public virtual Element SaveElement()
@@ -186,6 +213,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         var anchoredPosition = _rect.anchoredPosition;
         var sizeDelta = _rect.sizeDelta;
         baseData.Layer = _rect.GetSiblingIndex();
+        baseData.Tag = Tag;
         baseData.PositionX = anchoredPosition.x;
         baseData.PositionY = anchoredPosition.y;
         baseData.ScaleX = sizeDelta.x;
@@ -205,7 +233,9 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         Vector2 pos = new Vector2(data.PositionX, data.PositionY);
         Vector2 scale = new Vector2(data.ScaleX, data.ScaleY);
         _rect.anchoredPosition = pos;
+        _resetPosition = _rect.anchoredPosition;
         _rect.sizeDelta = scale;
+        _resetScale = _rect.sizeDelta;
         Color = data.Color;
         Name = data.Name;
         isExposed = data.Exposed;
@@ -214,6 +244,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         ToggleLock(data.Locked);
         Rotate(data.Rotation);
         SetName(Name);
+        SetTag(data.Tag.ToString());
     }
     
     public virtual void SelectItem()
@@ -227,6 +258,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         onSelect.Invoke();
         AssignCallbacks();
         GetBounds();
+        onSelectGlobal?.Invoke();
     }
 
     public virtual void DeselectItem()
@@ -235,6 +267,25 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         SelectedItem.ToggleControls(false);
         SelectedItem = null;
         _selectionBox.Reset();
+        onDeselectGlobal?.Invoke();
+    }
+
+    protected void Copy()
+    {
+        if (SelectedItem == null) return;
+        CopyItem = SelectedItem;
+        CopyItemData = CopyItem.SaveElement();
+    }
+
+    protected void Paste()
+    {
+        if (CopyItem == null || CopyItemData == null)
+        {
+            TimedInfoPrompt.single.DisplayTimedPrompt("No element to paste");
+            return;
+        }
+        
+        CardController.instance.PasteObject(CopyItem.gameObject,CopyItemData);
     }
 
     private void DeleteItem()
@@ -281,30 +332,65 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _scaleYInput.text = _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
         
         CardController.instance.recentlySaved = false;
+        UpdateInfoBox();
     }
     
     private void ScaleX(string incomingSizeX)
     {
         if (incomingSizeX == String.Empty) return;
-        float s = float.Parse(incomingSizeX);
+        bool valid = float.TryParse(incomingSizeX, out var s);
+        if (!valid) return;
         if (SelectedItem != this) return;
         var scale = _rect.sizeDelta;
         scale.x = s;
         _rect.sizeDelta = scale;
         GetBounds();
         CardController.instance.recentlySaved = false;
+        UpdateInfoBox();
     }
     
     private void ScaleY(string incomingSizeY)
     {
         if (incomingSizeY == String.Empty) return;
-        float s = float.Parse(incomingSizeY);
+        bool valid = float.TryParse(incomingSizeY, out var s);
+        if (!valid) return;
         if (SelectedItem != this) return;
         var scale = _rect.sizeDelta;
         scale.y = s;
         _rect.sizeDelta = scale;
         GetBounds();
         CardController.instance.recentlySaved = false;
+        UpdateInfoBox();
+    }
+
+    private void MoveX(string incomingPosX)
+    {
+        if (_tempMoveLock) return;
+        if (incomingPosX == String.Empty) return;
+        bool valid = float.TryParse(incomingPosX, out var s);
+        if (!valid) return;
+        if (SelectedItem != this) return;
+        var pos = _rect.anchoredPosition;
+        pos.x = s;
+        _rect.anchoredPosition = pos;
+        GetBounds();
+        CardController.instance.recentlySaved = false;
+        UpdateInfoBox();
+    }
+
+    private void MoveY(string incomingPosY)
+    {
+        if (_tempMoveLock) return;
+        if (incomingPosY == String.Empty) return;
+        bool valid = float.TryParse(incomingPosY, out var s);
+        if (!valid) return;
+        if (SelectedItem != this) return;
+        var pos = _rect.anchoredPosition;
+        pos.y = s;
+        _rect.anchoredPosition = pos;
+        GetBounds();
+        CardController.instance.recentlySaved = false;
+        UpdateInfoBox();
     }
 
     private void CenterAlignObject(int alignment)
@@ -316,6 +402,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
             pos.y = 0;
         _rect.anchoredPosition = pos;
         CardController.instance.recentlySaved = false;
+        UpdateInfoBox();
     }
     
     private void ToggleFlipX(bool state)
@@ -347,6 +434,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private void ToggleExpose(bool state)
     {
         isExposed = state;
+        CardController.instance.ShowExposedObjects();
     }
 
     public virtual void SetColor(string hexValue)
@@ -364,6 +452,13 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         Name = incName;
         onNameChange.Invoke();
     }
+
+    private void SetTag(string incTag)
+    {
+        bool valid = int.TryParse(incTag, out int v);
+        if (valid)
+            Tag = v;
+    }
     
     private void ResetScale()
     {
@@ -371,12 +466,41 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _scaleXInput.text = _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture);
         _scaleYInput.text = _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
         CardController.instance.recentlySaved = false;
+        UpdateInfoBox();
     }
 
     private void ResetPosition()
     {
         _rect.anchoredPosition = _resetPosition;
+        UpdatePosition();
         CardController.instance.recentlySaved = false;
+    }
+
+    public void ZeroPosition()
+    {
+        print($"Zero out {this.gameObject.name}. {_rect.anchoredPosition} to {Vector2.zero}");
+        _rect.anchoredPosition = Vector2.zero;
+        UpdatePosition();
+        CardController.instance.recentlySaved = false;
+    }
+
+    private void UpdatePosition()
+    {
+        _tempMoveLock = true;
+        _posXInput.text   = _rect.anchoredPosition.x.ToString("0.0");
+        _posYInput.text   = _rect.anchoredPosition.y.ToString("0.0");
+        _tempMoveLock = false;
+        UpdateInfoBox();
+    }
+
+    private void ClearInfoBox()
+    {
+        _objectTag.text = _posXInput.text = _posYInput.text = _scaleXInput.text = _scaleYInput.text = "";
+    }
+    
+    private void UpdateInfoBox()
+    {
+        //_objectInfoDisplay.text = $"Position:\n{_rect.anchoredPosition.ToString("0.0")}\nScale:\n{_rect.sizeDelta.ToString("0.0")}";
     }
 
     protected virtual void ToggleControls(bool state)
@@ -384,7 +508,10 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _rotationSlider.interactable = state;
         _scaleXInput.interactable = state; 
         _scaleYInput.interactable = state;
+        _posXInput.interactable = state;
+        _posYInput.interactable = state;
         _objectNameInput.interactable = state;
+        _objectTag.interactable = state;
         _resetScaleButton.interactable = state;
         _resetPositionButton.interactable = state;
         _flipX.interactable = state;
@@ -397,6 +524,12 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _stretchX.interactable = state;
         _stretchY.interactable = state;
         _stretchFill.interactable = state;
+        _copy.interactable = state;
+        _paste.interactable = state;
+        
+        if(state)
+            UpdateInfoBox();
+        else ClearInfoBox();
     }
     
     public void OnPointerDown(PointerEventData eventData)

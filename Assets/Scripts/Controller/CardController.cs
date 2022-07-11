@@ -20,19 +20,17 @@ public class CardController : MonoBehaviour
     [SerializeField] private Transform cardContainer;
     [SerializeField] private Transform layerContainer;
     [SerializeField] private Image cardBackground;
+    [SerializeField] private GameObject massExportSaveProtectionWindow;
 
+    [Header("Windows")]
+    [SerializeField] private FileExplorerWindow imageWindow;
+    
     [Header("Current Card Information")]
     [SerializeField] private TMP_InputField cardNameInput;
     [SerializeField] private TextMeshProUGUI exportPathDisplay;
     [SerializeField] private TextMeshProUGUI savePathDisplay;
     [SerializeField] private TextMeshProUGUI templateDisplay;
 
-    [Header("Export Displays")] 
-    [SerializeField] private GameObject clickProtection;
-    [SerializeField] private TextMeshProUGUI exportProgressText;
-    [SerializeField] private Slider exportProgressSlider;
-    [SerializeField] private ColorTinter exportMask;
-    
     private string _exportPath;
     private string _savePath;
     private string _massExportPath;
@@ -67,6 +65,11 @@ public class CardController : MonoBehaviour
         recentlySaved = true;
     }
 
+    private void Start()
+    {
+        imageWindow.OpenWindow();
+    }
+
     private void Update()
     {
         // todo: move to controller
@@ -93,6 +96,17 @@ public class CardController : MonoBehaviour
         var item = o.GetComponentInChildren<SelectableItem>();
         cardElements.Add(item);
         item.SelectItem();
+        AddLayerItem(item);
+    }
+
+    public void PasteObject(GameObject obj, Element data)
+    {
+        var o = Instantiate(obj, cardContainer);
+        var item = o.GetComponentInChildren<SelectableItem>();
+        cardElements.Add(item);
+        item.SelectItem();
+        item.LoadElement(data);
+        item.ZeroPosition();
         AddLayerItem(item);
     }
 
@@ -199,8 +213,10 @@ public class CardController : MonoBehaviour
                 AddImageObject();
             cardElements[i].LoadElement(element);
         }
-        if(!_skipMessages)
+
+        if (!_skipMessages)
             TimedInfoPrompt.single.DisplayTimedPrompt($"Loaded {cardName}");
+
     }
 
     private void ConfirmLoad(string filePath)
@@ -233,8 +249,8 @@ public class CardController : MonoBehaviour
         Tuple<Element[], string> data = new Tuple<Element[], string>(elements.ToArray(),_templatePath);
         SaveLoadCardElements.Save(data,cardNameInput.text);
         recentlySaved = true;
-        
-        TimedInfoPrompt.single.DisplayTimedPrompt($"Saved {cardNameInput.text}");
+        if(!_skipMessages)
+            TimedInfoPrompt.single.DisplayTimedPrompt($"Saved {cardNameInput.text}");
     }
 
     public void ClearCard()
@@ -242,33 +258,50 @@ public class CardController : MonoBehaviour
         WarningMessageBox.Instance.DisplayWarning("Are you sure you want to clear this card?",ConfirmClearCard);
     }
 
-    void ConfirmClearCard()
+    public void ConfirmClearCard()
     {
         SelectableItem.SelectedItem?.DeselectItem();
         ClearElements();
         ClearLayerItems();
         cardNameInput.text = "";
+        recentlySaved = true;
     }
 
+    public List<SelectableItem> GetCardElements()
+    {
+        return cardElements;
+    }
+
+    public void SetCardName(string newName)
+    {
+        cardNameInput.text = newName;
+    }
+
+    public void TurnOffMessages(bool state)
+    {
+        _skipMessages = state;
+    }
+    
     public void SetSavePath(string newPath)
     {
         _savePath = newPath;
-        VerifyFilePath(ref _savePath,"SavePath",PathTarget.Templates,"Save Path: ");
+        VerifyFilePath(ref _savePath,"SavePath",PathTarget.Templates,"Save Path: ", savePathDisplay);
+        SaveLoadCardElements.CardSavePath = _savePath;
     }
 
     public void SetExportPath(string newPath)
     {
         _exportPath = newPath;
-        VerifyFilePath(ref _exportPath,"ExportPath",PathTarget.Cards,"Export Path: ");
+        VerifyFilePath(ref _exportPath,"ExportPath",PathTarget.Cards,"Export Path: ",exportPathDisplay);
     }
     
     public void SetMassExportPath(string newPath)
     {
         _massExportPath = newPath;
-        VerifyFilePath(ref _massExportPath,"MassExportPath",PathTarget.Cards,"Mass Export Path: ");
+        VerifyFilePath(ref _massExportPath,"MassExportPath",PathTarget.Cards,null,null);
     }
 
-    private void VerifyFilePath(ref string local, string key, string defaultValue, string extra)
+    private void VerifyFilePath(ref string local, string key, string defaultValue, string extra, TextMeshProUGUI display)
     {
         if (!PlayerPrefs.HasKey(key))
         {
@@ -280,21 +313,26 @@ public class CardController : MonoBehaviour
         {
             PlayerPrefs.SetString(key,defaultValue);
             _massExportPath = PlayerPrefs.GetString(key);
-            VerifyFilePath(ref local,key,defaultValue,extra);
+            VerifyFilePath(ref local,key,defaultValue,extra,display);
             return;
         }
         local = local.Replace('/', '\\');
         if(local[^1] == '\\')
             local = local.Remove(local.Length-1);
         PlayerPrefs.SetString(key,local);
-        exportPathDisplay.text = $"{extra}"+local;
+        if (string.IsNullOrEmpty(extra)) return;
+        display.text = $"{extra}"+local;
     }
 
     public void StartBulkExport()
     {
-        clickProtection.SetActive(true);
-        exportMask.ToggleFade(false);
-        _skipMessages = true;
+        if (recentlySaved == false)
+        {
+            massExportSaveProtectionWindow.SetActive(true);
+            return;
+        }
+
+        TurnOffMessages(true);
         SetExportPath(_exportPath);
         if(SelectableItem.SelectedItem!=null) SelectableItem.SelectedItem.DeselectItem();
         if(LayerListObject.SelectedLayerListObject) LayerListObject.SelectedLayerListObject.Deselect();
@@ -305,25 +343,24 @@ public class CardController : MonoBehaviour
     {
         var cards = Directory.GetFiles(_massExportPath).Where(o => o.Contains(".card")).Where(o => !o.Contains(".meta")).ToList();
         int i = 0;
-        exportProgressSlider.maxValue = cards.Count;
-        exportProgressSlider.value = i;
-        exportProgressText.text = $"{i} / {exportProgressSlider.maxValue}"; 
+        var canDoTask = BatchTaskDisplay.single.SetupTask("Exporting Cards", i, cards.Count);
+        if (!canDoTask)
+        {
+            TimedInfoPrompt.single.DisplayTimedPrompt("Busy with task...");
+           yield return null;
+        }
         foreach(var card in cards)
         {
             yield return new WaitForSeconds(0.05f);
             i++;
-            exportProgressText.text = $"{i} / {exportProgressSlider.maxValue}";
-            exportProgressSlider.value = i;
+            BatchTaskDisplay.single.Tick();
             LoadCard(card);
             yield return StartCoroutine(Screenshot(cardNameInput.text));
         }
-        exportMask.ToggleFade(true);
-        yield return new WaitForSeconds(1f);
-        TimedInfoPrompt.single.DisplayTimedPrompt("Finished exporting!");
-        clickProtection.SetActive(false);
-        _skipMessages = false;
+        if(!_skipMessages)
+            BatchTaskDisplay.single.EndTask(1f,"Finished exporting!");
+        TurnOffMessages(false);
         ConfirmClearCard();
-        yield break;
     }
     
     public void TakeScreenShot()
@@ -345,16 +382,24 @@ public class CardController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.05f);
         ScreenshotHandler.TakeScreenshot_Static(cardNameInput.text,_exportPath);
-        TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
+        if(!_skipMessages)
+            TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
     }
     
     IEnumerator Screenshot(string fileName)
     {
         yield return new WaitForSeconds(0.05f);
         ScreenshotHandler.TakeScreenshot_Static(fileName,_exportPath);
+        if(!_skipMessages)
+            TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
     }
 
-    public void ShowExposedObjects(bool state)
+    public void ShowExposedObjects()
+    {
+        ShowExposedObjects(_onlyShowExposed);
+    }
+    
+    private void ShowExposedObjects(bool state)
     {
         _onlyShowExposed = state;
         foreach (var layer in layerElements)
@@ -371,12 +416,18 @@ public class CardController : MonoBehaviour
     
     void AddLayerItem(SelectableItem parentItem)
     {
+        
         if(LayerListObject.SelectedLayerListObject != null) LayerListObject.SelectedLayerListObject.Deselect();
         var obj = Instantiate(objectLayerListItem, layerContainer);
         var data = obj.GetComponent<LayerListObject>();
         data.Setup(parentItem);
-        data.Select();
         layerElements.Add(data);
+        if (!parentItem.isExposed && _onlyShowExposed)
+        {
+            obj.SetActive(false);
+            return;
+        }
+        data.Select();
     }
     
     void ClearLayerItems()

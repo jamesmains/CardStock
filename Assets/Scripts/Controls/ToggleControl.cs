@@ -11,8 +11,8 @@ public class ToggleControl : MonoBehaviour
 {
     [SerializeField] private TMP_InputField neighbor;
 
-    public TMP_InputField _thisSelectable;
-    public bool _canSwitch;
+    private TMP_InputField _thisSelectable;
+    private bool _canSwitch;
 
     private void Awake()
     {
@@ -24,7 +24,7 @@ public class ToggleControl : MonoBehaviour
     private void Update()
     {
         if (!_canSwitch) return;
-        if(Input.GetKeyUp(KeyCode.Tab))
+        if(Input.GetKeyDown(KeyCode.Tab))
             TabTo();
             
     }
