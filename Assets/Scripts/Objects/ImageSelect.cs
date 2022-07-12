@@ -122,7 +122,6 @@ public class ImageSelect : SelectableItem
         if (!File.Exists(filePath)) return null; // replace with warning message
         Texture2D spriteTexture = LoadTexture(filePath);
         var newSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height),new Vector2(0,0), pixelsPerUnit);
-        DestroyImmediate(spriteTexture);
         return newSprite;
     }
 

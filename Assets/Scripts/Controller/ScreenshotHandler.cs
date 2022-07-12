@@ -63,7 +63,6 @@ public class ScreenshotHandler : MonoBehaviour
         System.IO.File.WriteAllBytes(_exportPath + $"\\{_fileName}.png", byteArray);
         
         RenderTexture.ReleaseTemporary(renderTexture);
-        DestroyImmediate(renderResult);
         _myCamera.targetTexture = null;
     }
 

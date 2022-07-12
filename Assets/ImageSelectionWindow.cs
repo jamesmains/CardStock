@@ -13,6 +13,7 @@ public class ImageSelectionWindow : FileExplorerWindow
     [SerializeField] private GameObject imageFolderPrefab;
     private List<string> _paths = new List<string>();
     private List<Sprite> _sprites = new List<Sprite>();
+    private List<Texture2D> _imageList = new List<Texture2D>();
     private bool _canLoad = true;
     private Texture2D _currentTexture;
 
@@ -37,6 +38,9 @@ public class ImageSelectionWindow : FileExplorerWindow
         // foreach(var sprite in _sprites)
         //     Destroy(sprite);
         _sprites.Clear();
+        foreach(var img in _imageList)
+            Destroy(img);
+        _imageList.Clear();
         if(!_canLoad)
             StopAllCoroutines();
         StartCoroutine(LoadFiles(files));
@@ -118,6 +122,7 @@ public class ImageSelectionWindow : FileExplorerWindow
             Tex2D.filterMode = FilterMode.Point;
             if (Tex2D.LoadImage(fileData)) // Load the image data into the texture (size is set automatically)
             {
+                _imageList.Add(Tex2D);
                 _currentTexture = Tex2D; // If data = readable -> set/return texture
                 yield break;
             }
