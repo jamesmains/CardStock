@@ -312,7 +312,7 @@ public class CardController : MonoBehaviour
         if (!Directory.Exists(local))
         {
             PlayerPrefs.SetString(key,defaultValue);
-            _massExportPath = PlayerPrefs.GetString(key);
+            local = PlayerPrefs.GetString(key);
             VerifyFilePath(ref local,key,defaultValue,extra,display);
             return;
         }

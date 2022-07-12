@@ -97,7 +97,7 @@ General Bug Fixes and Quality of Life Changes:
  
 ------------------------------------------------------------------------------------
 
-Patch Notes 1.2.x
+Patch Notes 1.2.0
 
 Tab Seperated Value (TSV) sheet support!
  - New folder in project folder for TSV files
@@ -135,3 +135,10 @@ General Bug Fixes and Quality of Life Changes:
  * Fixed issue with adding an object when Show Exposed Only was toggled on would appear in the layer list
  * Fixed issue where marking an object as exposed wouldn't update the layer list
  * Fixed sluggish / non-responsive scroll windows
+ 
+ ------------------------------------------------------------------------------------
+ 
+ Patch Notes 1.2.1
+ 
+ Bug Fixes:
+  * Fixed critical issue where image objects would become null if resources were refreshed

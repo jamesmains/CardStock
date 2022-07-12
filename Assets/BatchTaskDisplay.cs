@@ -20,7 +20,6 @@ public class BatchTaskDisplay : MonoBehaviour
     private void Awake()
     {
         single = this;
-        print(single);
     }
 
     public bool SetupTask(string taskName, int startingValue, int maxValue)

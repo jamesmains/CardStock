@@ -22,8 +22,9 @@ public class ImageSelect : SelectableItem
     // Data
     public Sprite defaultImage;
     public string imageFilePath;
-    private int _filterMode = 1; // 0 Bilinear, 1 Point 
-    
+    private int _filterMode = 1; // 0 Bilinear, 1 Point
+    private Sprite _spriteHolder;
+
     protected override void Awake()
     {
         _image = GetComponent<Image>();
@@ -82,17 +83,6 @@ public class ImageSelect : SelectableItem
         SetColor(data.Color);
         SetFilterMode(_filterMode);
     }
-    
-    // protected override void Copy()
-    // {
-    //     base.Copy();
-    //     print(CopyItemData.ExtraData[0]);
-    // }
-    //
-    // protected override void Paste()
-    // {
-    //     base.Paste();
-    // }
 
     public override void SetColor(string hexValue)
     {
@@ -119,6 +109,8 @@ public class ImageSelect : SelectableItem
 
     public void SetImage(Sprite image)
     {
+        // _image.sprite = LoadNewSprite(imageFilePath);
+        // _spriteHolder = image;
         _image.sprite = image;
     }
     
@@ -130,7 +122,7 @@ public class ImageSelect : SelectableItem
         if (!File.Exists(filePath)) return null; // replace with warning message
         Texture2D spriteTexture = LoadTexture(filePath);
         var newSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height),new Vector2(0,0), pixelsPerUnit);
- 
+        DestroyImmediate(spriteTexture);
         return newSprite;
     }
 
