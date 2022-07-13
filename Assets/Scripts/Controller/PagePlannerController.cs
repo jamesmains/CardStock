@@ -35,13 +35,13 @@ public class PagePlannerController : MonoBehaviour
     private int _exportCompression;
     private bool _mode; // 0 - Standard Paper, 1 - TTS
     private List<Sprite> _cardSprites = new List<Sprite>();
-    private PageExporter _pageExporter;
+    private ImageExporter _imageExporter;
 
     private int _cardModState;
     
     private void Start()
     {
-        _pageExporter = GetComponent<PageExporter>();
+        _imageExporter = GetComponent<ImageExporter>();
         UpdateCardSelectionList();
         // UpdatePage();
         TogglePageType();
@@ -179,7 +179,7 @@ public class PagePlannerController : MonoBehaviour
         }
 
         TEST = pageCards;
-        _pageExporter.ExportPage(pageCards,$"{batchNameEditor.text}_{_pageIndex}",_col,_row,_exportCompression);
+        _imageExporter.ExportPage(pageCards,$"{batchNameEditor.text}_{_pageIndex}",_col,_row,_exportCompression);
     }
 
     public void ExportAllPages()

@@ -19,7 +19,6 @@ public class CardController : MonoBehaviour
     [Header("Containers")]
     [SerializeField] private Transform cardContainer;
     [SerializeField] private Transform layerContainer;
-    [SerializeField] private Image cardBackground;
     [SerializeField] private GameObject massExportSaveProtectionWindow;
 
     [Header("Windows")]
@@ -61,7 +60,6 @@ public class CardController : MonoBehaviour
             Destroy(this);
         
         ClearLayerItems();
-        //RefreshImageList();
         recentlySaved = true;
     }
 
@@ -110,6 +108,11 @@ public class CardController : MonoBehaviour
         AddLayerItem(item);
     }
 
+    public void RemoveObject(SelectableItem obj)
+    {
+        cardElements.Remove(obj);
+    }
+    
     public void SetTemplate(string filePath)
     {
         _templatePath = filePath;
@@ -225,15 +228,30 @@ public class CardController : MonoBehaviour
         LoadCard(filePath);
     }
 
-    public void SaveCard()
+    public bool SaveCard()
     {
         // todo - update
         if (cardNameInput.text == String.Empty)
         {
             WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
-            return;
+            return false;
         }
-        else ConfirmSaveCard();
+        else
+        {
+            ConfirmSaveCard();
+            return true;
+        }
+        
+    }
+    
+    public void SaveCardNoReturn()
+    {
+        if (cardNameInput.text == String.Empty)
+        {
+            WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
+            return ;
+        }
+        ConfirmSaveCard();
         
     }
 
@@ -285,20 +303,20 @@ public class CardController : MonoBehaviour
     public void SetSavePath(string newPath)
     {
         _savePath = newPath;
-        VerifyFilePath(ref _savePath,"SavePath",PathTarget.Templates,"Save Path: ", savePathDisplay);
+        VerifyFilePath(ref _savePath,"SavePath",PathTarget.Cards,"Save Path: ", savePathDisplay);
         SaveLoadCardElements.CardSavePath = _savePath;
     }
 
     public void SetExportPath(string newPath)
     {
         _exportPath = newPath;
-        VerifyFilePath(ref _exportPath,"ExportPath",PathTarget.Cards,"Export Path: ",exportPathDisplay);
+        VerifyFilePath(ref _exportPath,"ExportPath",PathTarget.Exports,"Export Path: ",exportPathDisplay);
     }
     
     public void SetMassExportPath(string newPath)
     {
         _massExportPath = newPath;
-        VerifyFilePath(ref _massExportPath,"MassExportPath",PathTarget.Cards,null,null);
+        VerifyFilePath(ref _massExportPath,"MassExportPath",PathTarget.Exports,null,null);
     }
 
     private void VerifyFilePath(ref string local, string key, string defaultValue, string extra, TextMeshProUGUI display)
@@ -365,6 +383,35 @@ public class CardController : MonoBehaviour
     
     public void TakeScreenShot()
     {
+        // Core Issues
+        // Higher Layer Objects Transparency overwrite Lower Layer Colors
+        // Text Texture is offset
+        // List<Sprite> sprites = new List<Sprite>();
+        // List<Vector2> positions = new List<Vector2>();
+        // List<Vector2> scales = new List<Vector2>();
+        // foreach (var element in cardElements)
+        // {
+        //     var rectTransform = element.GetComponent<RectTransform>();
+        //     positions.Add(rectTransform.anchoredPosition);
+        //     scales.Add(rectTransform.sizeDelta);
+        //     if (element.GetComponent<TextSelect>())
+        //     {
+        //         var t = element.GetComponent<TextSelect>();
+        //         var tex = t.GetTexture();
+        //         if (tex == null)
+        //             return;
+        //         Rect rect = new Rect(0, 0, tex.width, tex.height);
+        //         sprites.Add(Sprite.Create(tex,rect,new Vector2(0,0),100));
+        //     }
+        //     else if (element.GetComponent<ImageSelect>())
+        //     {
+        //         var i = element.GetComponent<ImageSelect>();
+        //         sprites.Add(i.GetSprite());
+        //     }
+        // }
+        //
+        // FindObjectOfType<ImageExporter>().ExportImage(sprites,positions,scales,"Super Test",540,785,0,2);
+
         if (cardNameInput.text == String.Empty)
         {
             WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
@@ -372,7 +419,7 @@ public class CardController : MonoBehaviour
         }
         
         SetExportPath(_exportPath);
-
+        
         if(SelectableItem.SelectedItem!=null) SelectableItem.SelectedItem.DeselectItem();
         if(LayerListObject.SelectedLayerListObject) LayerListObject.SelectedLayerListObject.Deselect();
         StartCoroutine(Screenshot());
@@ -380,8 +427,9 @@ public class CardController : MonoBehaviour
 
     IEnumerator Screenshot()
     {
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForEndOfFrame();
         ScreenshotHandler.TakeScreenshot_Static(cardNameInput.text,_exportPath);
+        yield return StartCoroutine(ScreenshotHandler.instance.DoScreenShot());
         if(!_skipMessages)
             TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
     }

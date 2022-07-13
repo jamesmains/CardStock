@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Globalization;
 using JimJam.Gameplay;
 using TMPro;
@@ -31,6 +32,7 @@ public class TextSelect : SelectableItem
     // Misc
     private string _prefixString;
     private string _baseText;
+    private Texture2D _textTexture;
     
     public static TextSelect SelectedText;
     
@@ -278,4 +280,24 @@ public class TextSelect : SelectableItem
         _prefixString += _isUnderlined ? "<u>" : "";
         return _prefixString;
     }
+
+    // public Texture2D GetTexture()
+    // {
+    //     
+    //     StartCoroutine(SnapText());
+    //     return _textTexture;
+    //     // return (Texture2D)_text.materialForRendering.mainTexture;
+    // }
+    //
+    // IEnumerator SnapText()
+    // {
+    //     yield return new WaitForEndOfFrame();
+    //     int width = Mathf.FloorToInt(_rect.sizeDelta.x);
+    //     int height = Mathf.FloorToInt(_rect.sizeDelta.y);
+    //     _textTexture = new Texture2D(width*2, height*2, TextureFormat.RGBA32, false);
+    //     Rect tempRect = new Rect(_rect.position,_rect.sizeDelta*2);
+    //     _textTexture.ReadPixels(tempRect, 0, 0);
+    //     _textTexture.Apply();
+    //     yield return _textTexture;
+    // }
 }

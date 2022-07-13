@@ -18,10 +18,10 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private Toggle _flipX, _flipY, _lock, _expose;
     
     // Refs
-    private Selection _selectionBox;
-    private RectTransform _parentRect;
-    private RectTransform _rect;
-    private Draggable _draggable;
+    protected Selection _selectionBox;
+    protected RectTransform _parentRect;
+    protected RectTransform _rect;
+    protected Draggable _draggable;
     private ColorPicker _colorPicker;
     
     // Temp Data

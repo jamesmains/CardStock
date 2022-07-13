@@ -9,8 +9,6 @@ public static class PathTarget
     public enum PathTargets
     {
         App = 0,
-        Templates,
-        Resources,
         Fonts,
         Cards,
         Pages,
@@ -21,8 +19,6 @@ public static class PathTarget
     }
     
     public static string App = $"{Application.dataPath}/Card Stock/";
-    public static string Templates = $"{Application.dataPath}/Card Stock/Templates/";
-    public static string Resources = $"{Application.dataPath}/Card Stock/Resources/";
     public static string Fonts = $"{Application.dataPath}/Card Stock/Fonts/";
     public static string Cards = $"{Application.dataPath}/Card Stock/Cards/";
     public static string Pages = $"{Application.dataPath}/Card Stock/Pages/";
@@ -34,8 +30,6 @@ public static class PathTarget
     static PathTarget()
     {
         CheckPath(App);
-        CheckPath(Templates);
-        CheckPath(Resources);
         CheckPath(Fonts);
         CheckPath(Cards);
         CheckPath(Pages);
@@ -54,15 +48,13 @@ public static class PathTarget
     public static string GetPath(int i) => i switch
     {
         0 => App,
-        1 => Templates,
-        2 => Resources,
-        3 => Fonts,
-        4 => Cards,
-        5 => Pages,
-        6 => Boards,
-        7 => Images,
-        8 => Exports,
-        9 => TSVSheets,
+        1 => Fonts,
+        2 => Cards,
+        3 => Pages,
+        4 => Boards,
+        5 => Images,
+        6 => Exports,
+        7 => TSVSheets,
         _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
     };
 }

@@ -138,4 +138,9 @@ public class ImageSelect : SelectableItem
         }  
         return null;                                // Return null if load failed
     }
+
+    public Sprite GetSprite()
+    {
+        return _image.sprite;
+    }
 }

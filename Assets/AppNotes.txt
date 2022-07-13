@@ -142,3 +142,19 @@ General Bug Fixes and Quality of Life Changes:
  
  Bug Fixes:
   * Fixed critical issue where image objects would become null if resources were refreshed
+  
+ ------------------------------------------------------------------------------------
+ 
+ Patch Notes 1.2.2
+ 
+ Bug Fixes:
+  * Fixed critical memory leak (similar to bug in 1.2.0)
+  * Refreshing images is much quicker
+  
+  
+ ------------------------------------------------------------------------------------
+ 
+ Patch Notes 1.2.3
+ 
+ Bug Fixes:
+  

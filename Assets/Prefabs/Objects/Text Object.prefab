@@ -151,11 +151,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc52d78970fb9849b6f0b21d35d7f59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Tag: 0
   isExposed: 0
   onSelect:
     m_PersistentCalls:
       m_Calls: []
   onNameChange:
+    m_PersistentCalls:
+      m_Calls: []
+  onDelete:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &1312863157411590264
@@ -214,6 +218,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcbfe01a09f07ff408b8258e0e7da2fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onDrag:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &-7629731676961855892
 MonoBehaviour:
   m_ObjectHideFlags: 0

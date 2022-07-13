@@ -23,7 +23,7 @@ public class ScreenshotHandler : MonoBehaviour
     [SerializeField] private Vector2 cardSize = new Vector2(400,564);
     [SerializeField] private float headbarHeight;
     [SerializeField] private CanvasScaler _canvasScaler;
-    private static ScreenshotHandler instance;
+    public static ScreenshotHandler instance;
 
     private Camera _myCamera;
     private static string _fileName;
@@ -35,9 +35,8 @@ public class ScreenshotHandler : MonoBehaviour
         
     }
 
-    IEnumerator DoScreenShot()
+    public IEnumerator DoScreenShot()
     {
-        yield return new WaitForEndOfFrame();
         RenderTexture renderTexture = _myCamera.targetTexture;
 
         float offset = Screen.width / _canvasScaler.referenceResolution.x;
@@ -64,6 +63,7 @@ public class ScreenshotHandler : MonoBehaviour
         
         RenderTexture.ReleaseTemporary(renderTexture);
         _myCamera.targetTexture = null;
+        yield return new WaitForEndOfFrame();
     }
 
     private void TakeScreenshot() 
@@ -76,6 +76,7 @@ public class ScreenshotHandler : MonoBehaviour
     {
         _fileName = fileName;
         _exportPath = exportPath;
-        instance.TakeScreenshot();
+        // instance.TakeScreenshot();
+        instance._myCamera.targetTexture = RenderTexture.GetTemporary(1, 1, 16);
     }
 }
