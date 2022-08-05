@@ -7,6 +7,7 @@ using JimJam.Gameplay;
 using Mono.CompilerServices.SymbolWriter;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class CardController : MonoBehaviour
@@ -23,16 +24,16 @@ public class CardController : MonoBehaviour
 
     [Header("Windows")]
     [SerializeField] private FileExplorerWindow imageWindow;
+    [SerializeField] private FileExplorerWindow saveAsWindow;
+    [SerializeField] private InputPromptWindow cardNameInputWindow;
     
     [Header("Current Card Information")]
     [SerializeField] private TMP_InputField cardNameInput;
-    [SerializeField] private TextMeshProUGUI exportPathDisplay;
-    [SerializeField] private TextMeshProUGUI savePathDisplay;
     [SerializeField] private TextMeshProUGUI templateDisplay;
 
     private string _exportPath;
     private string _savePath;
-    private string _massExportPath;
+    private string _massExportTargetsPath;
     private string _currentCardPath;
     private string _templatePath;
     private bool _onlyShowExposed;
@@ -74,7 +75,7 @@ public class CardController : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
             if(Input.GetKeyDown(KeyCode.S))
-                SaveCard();
+                TrySaveCard();
         }
     }
 
@@ -130,7 +131,7 @@ public class CardController : MonoBehaviour
         if (String.IsNullOrEmpty(_currentCardPath)) return;
         if (!File.Exists(_currentCardPath)) return;
         if(save)
-            SaveCard();
+            TrySaveCard();
         LoadCard(_currentCardPath);
     }
     
@@ -230,7 +231,6 @@ public class CardController : MonoBehaviour
 
     public bool SaveCard()
     {
-        // todo - update
         if (cardNameInput.text == String.Empty)
         {
             WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
@@ -241,18 +241,30 @@ public class CardController : MonoBehaviour
             ConfirmSaveCard();
             return true;
         }
-        
     }
     
-    public void SaveCardNoReturn()
+    public void TrySaveCard()
     {
         if (cardNameInput.text == String.Empty)
         {
-            WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
-            return ;
+            Action[] actions = new Action[2];
+            actions[0] = delegate { cardNameInput.text = cardNameInputWindow.GetInputText(); };
+            actions[1] = TrySaveCard;
+            cardNameInputWindow.OpenWindow(actions);
+            return;
         }
-        ConfirmSaveCard();
         
+        var validPath = VerifyFilePath(ref SaveLoadCardElements.CardSavePath,"SavePath",PathTarget.Cards,"Save Path: ");
+        var cardPath = SaveLoadCardElements.CardSavePath + "\\" + cardNameInput.text + ".card";
+        if (validPath == false || !File.Exists(cardPath))
+        {
+            saveAsWindow.OpenWindow();
+        }
+        else
+        {
+            SaveCard();
+            print(cardPath);
+        }
     }
 
     private void ConfirmSaveCard()
@@ -299,27 +311,33 @@ public class CardController : MonoBehaviour
     {
         _skipMessages = state;
     }
-    
+
     public void SetSavePath(string newPath)
     {
         _savePath = newPath;
-        VerifyFilePath(ref _savePath,"SavePath",PathTarget.Cards,"Save Path: ", savePathDisplay);
+        VerifyFilePath(ref _savePath,"SavePath",PathTarget.Cards,"Save Path: ");
         SaveLoadCardElements.CardSavePath = _savePath;
+    }
+    
+    public void SaveAs(string newPath)
+    {
+        SetSavePath(newPath);
+        SaveCard();
     }
 
     public void SetExportPath(string newPath)
     {
         _exportPath = newPath;
-        VerifyFilePath(ref _exportPath,"ExportPath",PathTarget.Exports,"Export Path: ",exportPathDisplay);
+        VerifyFilePath(ref _exportPath,"ExportPath",PathTarget.Exports,"Export Path: ");
     }
     
-    public void SetMassExportPath(string newPath)
+    public void SetMassExportTargetsPath(string newPath)
     {
-        _massExportPath = newPath;
-        VerifyFilePath(ref _massExportPath,"MassExportPath",PathTarget.Exports,null,null);
+        _massExportTargetsPath = newPath;
+        VerifyFilePath(ref _massExportTargetsPath,"MassExportPath",PathTarget.Exports,null,null);
     }
 
-    private void VerifyFilePath(ref string local, string key, string defaultValue, string extra, TextMeshProUGUI display)
+    private bool VerifyFilePath(ref string local, string key, string defaultValue, string extra, TextMeshProUGUI display = null)
     {
         if (!PlayerPrefs.HasKey(key))
         {
@@ -332,14 +350,16 @@ public class CardController : MonoBehaviour
             PlayerPrefs.SetString(key,defaultValue);
             local = PlayerPrefs.GetString(key);
             VerifyFilePath(ref local,key,defaultValue,extra,display);
-            return;
+            return false;
         }
         local = local.Replace('/', '\\');
         if(local[^1] == '\\')
             local = local.Remove(local.Length-1);
         PlayerPrefs.SetString(key,local);
-        if (string.IsNullOrEmpty(extra)) return;
-        display.text = $"{extra}"+local;
+        if (string.IsNullOrEmpty(extra)) return true;
+        if(display!=null)
+            display.text = $"{extra}"+local;
+        return true;
     }
 
     public void StartBulkExport()
@@ -359,24 +379,23 @@ public class CardController : MonoBehaviour
 
     IEnumerator BulkExport()
     {
-        var cards = Directory.GetFiles(_massExportPath).Where(o => o.Contains(".card")).Where(o => !o.Contains(".meta")).ToList();
-        int i = 0;
-        var canDoTask = BatchTaskDisplay.single.SetupTask("Exporting Cards", i, cards.Count);
+        var cards = Directory.GetFiles(_massExportTargetsPath).Where(o => o.Contains(".card")).Where(o => !o.Contains(".meta")).ToList();
+        
+        var canDoTask = BatchTaskDisplay.single.SetupTask("Exporting Cards", 0, cards.Count);
         if (!canDoTask)
         {
             TimedInfoPrompt.single.DisplayTimedPrompt("Busy with task...");
            yield return null;
         }
+
         foreach(var card in cards)
         {
-            yield return new WaitForSeconds(0.05f);
-            i++;
-            BatchTaskDisplay.single.Tick();
             LoadCard(card);
-            yield return StartCoroutine(Screenshot(cardNameInput.text));
+            TakeScreenShot();
+            yield return new WaitForEndOfFrame();
+            BatchTaskDisplay.single.Tick();
         }
-        if(!_skipMessages)
-            BatchTaskDisplay.single.EndTask(1f,"Finished exporting!");
+        BatchTaskDisplay.single.EndTask(1f,"Finished exporting!");
         TurnOffMessages(false);
         ConfirmClearCard();
     }
@@ -419,10 +438,10 @@ public class CardController : MonoBehaviour
         }
         
         SetExportPath(_exportPath);
-        
         if(SelectableItem.SelectedItem!=null) SelectableItem.SelectedItem.DeselectItem();
         if(LayerListObject.SelectedLayerListObject) LayerListObject.SelectedLayerListObject.Deselect();
         StartCoroutine(Screenshot());
+        Debug.Log(_exportPath.ToString());
     }
 
     IEnumerator Screenshot()
@@ -430,14 +449,6 @@ public class CardController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         ScreenshotHandler.TakeScreenshot_Static(cardNameInput.text,_exportPath);
         yield return StartCoroutine(ScreenshotHandler.instance.DoScreenShot());
-        if(!_skipMessages)
-            TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
-    }
-    
-    IEnumerator Screenshot(string fileName)
-    {
-        yield return new WaitForSeconds(0.05f);
-        ScreenshotHandler.TakeScreenshot_Static(fileName,_exportPath);
         if(!_skipMessages)
             TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
     }
@@ -452,6 +463,7 @@ public class CardController : MonoBehaviour
         _onlyShowExposed = state;
         foreach (var layer in layerElements)
         {
+            if(layer == null) continue;
             if(!_onlyShowExposed)
                 layer.gameObject.SetActive(true);
             else
@@ -507,5 +519,4 @@ public class CardController : MonoBehaviour
         }  
         return null;                                // Return null if load failed
     }
-    
 }

@@ -14,12 +14,14 @@ public class BatchTaskDisplay : MonoBehaviour
 
     private int _value;
     private bool _doingTask;
+    private Image _clickProtection;
 
     public static BatchTaskDisplay single;
 
     private void Awake()
     {
         single = this;
+        _clickProtection = GetComponent<Image>();
     }
 
     public bool SetupTask(string taskName, int startingValue, int maxValue)
@@ -32,7 +34,8 @@ public class BatchTaskDisplay : MonoBehaviour
         
         progressDisplay.text = $"{startingValue} / {maxValue}";
         _value = startingValue;
-        
+
+        _clickProtection.enabled = true;
         mask.ToggleFade(false);
         _doingTask = true;
         return true;
@@ -50,6 +53,8 @@ public class BatchTaskDisplay : MonoBehaviour
     {
         if(!string.IsNullOrEmpty(endMessage))
             TimedInfoPrompt.single.DisplayTimedPrompt(endMessage);
+
+        _clickProtection.enabled = false;
         mask.ToggleFade(true,delayTime);
         _doingTask = false;
     }

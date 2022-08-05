@@ -10,7 +10,10 @@ public static class SaveLoadCardElements
     public static string CardSavePath;
     public static void Save(Tuple<Element[],string> data, string fileName)
     {
+        Debug.Log(CardSavePath);
         BinaryFormatter formatter = new BinaryFormatter();
+        if (!Directory.Exists(CardSavePath))
+            CardSavePath = PathTarget.GetPath(2);
         FileStream stream = new FileStream(CardSavePath+"\\"+fileName+".card", FileMode.Create);
         try
         {

@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class FileExplorerWindow : MonoBehaviour
+public class FileExplorerWindow : Window
 {
     [Header("Display Settings")] 
     [SerializeField] protected Sprite goBackIcon;
@@ -14,7 +15,7 @@ public class FileExplorerWindow : MonoBehaviour
     [SerializeField] protected GameObject fileObjectPrefab;
     [SerializeField] protected GameObject directoryObjectPrefab;
     [SerializeField] protected Transform listContainer;
-    
+
     [Header("Targeting")]
     [SerializeField] private PathTarget.PathTargets rootPath;
     [SerializeField] protected bool showDirectories;
@@ -23,9 +24,12 @@ public class FileExplorerWindow : MonoBehaviour
     protected string _currentPath;
     protected FileListObject _tempObject;
     protected FileListObject _tempDirectory;
-    
-    private void OnEnable()
+    protected TMP_InputField _currentPathDisplay;
+
+    protected override void OnEnable()
     {
+        base.OnEnable();
+        _currentPathDisplay = GetComponentInChildren<TMP_InputField>();
         _rootPath = PathTarget.GetPath((int)rootPath);
         PathTarget.CheckPath(_rootPath);
         ResetList();
@@ -35,12 +39,15 @@ public class FileExplorerWindow : MonoBehaviour
     {
         _rootPath = _rootPath.Replace('/', '\\');
         _rootPath = _rootPath.Remove(_rootPath.Length-1);
-        _currentPath = _rootPath;
+        _currentPath = string.IsNullOrEmpty(_currentPath) ? _rootPath : _currentPath;
         RefreshList();
     }
 
     public virtual void RefreshList()
     {
+        if(_currentPathDisplay!=null)
+            _currentPathDisplay.text = _currentPath;
+        
         for (int i = 0; i < listContainer.childCount; i++)
         {
             Destroy(listContainer.GetChild(i).gameObject);
@@ -129,16 +136,12 @@ public class FileExplorerWindow : MonoBehaviour
         }
     }
 
-    public virtual void OpenWindow()
+    public override void OpenWindow()
     {
-        this.gameObject.SetActive(true);
+        base.OpenWindow();
+        if (!Directory.Exists(_currentPath))
+            _currentPath = _rootPath;
     }
-    
-    public void CloseWindow()
-    {
-        this.gameObject.SetActive(false);
-    }
-
     public virtual void DeleteSelected()
     {
         if (FileListObject.SelectedFileListObject == null) return;

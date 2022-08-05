@@ -154,7 +154,6 @@ General Bug Fixes and Quality of Life Changes:
   
  ------------------------------------------------------------------------------------
  
- Patch Notes 1.2.3
- 
- Bug Fixes:
+ Patch Notes 1.3.x
+ Patch notes have been moved to in app
   

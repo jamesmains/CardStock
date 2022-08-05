@@ -8,7 +8,6 @@ using UnityEngine.Events;
 
 public class PathSetterWindow : FileExplorerWindow
 {
-    [SerializeField] private TextMeshProUGUI currentPathDisplay;
     public UnityEvent onSetSavePath;
     public UnityEvent onSetExportPath;
     public UnityEvent onSetMassExportPath;
@@ -22,29 +21,17 @@ public class PathSetterWindow : FileExplorerWindow
         _cardController = FindObjectOfType<CardController>();
     }
 
-    public override void OpenWindow()
-    {
-        base.OpenWindow();
-        currentPathDisplay.text = _currentPath;
-    }
-
     public override void CreateFolder()
     {
         // Custom solution
         UnityAction action = RefreshList;
         DirectoryCreator.instance.PromptCreate(_currentPath,action);
     }
-    
-    protected override void GotoFolder(string dir)
-    {
-        base.GotoFolder(dir);
-        currentPathDisplay.text = _currentPath;
-    }
 
     public void SetSavePath()
     {
         if (!Directory.Exists(_currentPath)) return;
-        _cardController.SetSavePath(_currentPath);
+        _cardController.SaveAs(_currentPath);
         onSetSavePath.Invoke();
         CloseWindow();
     }
@@ -66,7 +53,7 @@ public class PathSetterWindow : FileExplorerWindow
     {
         if (!Directory.Exists(_currentPath)) return;
         if(_cardController!=null)
-            _cardController.SetMassExportPath(_currentPath);
+            _cardController.SetMassExportTargetsPath(_currentPath);
         
         onSetMassExportPath.Invoke();
         CloseWindow();

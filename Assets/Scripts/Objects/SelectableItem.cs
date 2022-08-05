@@ -37,6 +37,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private bool _isLocked;
     private int _rotation;
     public int Tag;
+    public string FilePath;
     protected string Color = "#ffffff";
     protected string Name;
     public bool isExposed;
