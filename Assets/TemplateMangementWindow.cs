@@ -35,10 +35,4 @@ public class TemplateMangementWindow : FileExplorerWindow
     {
         selectedCard = incomingListObject;
     }
-    
-    public override void CreateFolder()
-    {
-        UnityAction action = RefreshList;
-        DirectoryCreator.instance.PromptCreate(_currentPath,action);
-    }
 }

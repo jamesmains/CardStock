@@ -20,12 +20,13 @@ public class Window : MonoBehaviour
     
     protected virtual void OnEnable()
     {
+        if (ignoreAsCurrentWindow) return;
         if (CurrentWindow != null)
         {
-            if(CurrentWindow != this)
+            if (CurrentWindow != this)
+            {
                 CurrentWindow.CloseWindow();
+            }
         }
-        if(!ignoreAsCurrentWindow)
-            CurrentWindow = this;
     }
 }

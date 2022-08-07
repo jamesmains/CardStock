@@ -37,21 +37,4 @@ public class CardManagementWindow : FileExplorerWindow
         selectedCard = incomingListObject;
     }
     
-    public void LoadCard()
-    {
-        if (selectedCard != null)
-        {
-            _cardController.LoadCard(selectedCard.filePath);
-            CloseWindow();
-        }
-    }
-    
-    public override void CreateFolder()
-    {
-        // Custom solution
-        UnityAction action = RefreshList;
-        DirectoryCreator.instance.PromptCreate(_currentPath,action);
-    }
-
-    
 }

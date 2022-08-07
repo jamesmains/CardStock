@@ -161,8 +161,22 @@ public class FileExplorerWindow : Window
     
     public virtual void CreateFolder()
     {
-        UnityAction action = RefreshList;
-        DirectoryCreator.instance.PromptCreate(_currentPath,action);
+        // Custom solution
+        Action[] actions = new Action[1];
+        actions[0] = delegate { ConfirmCreateFolder(InputPromptWindow.Instance.GetInputText()); };
+        InputPromptWindow.Instance.OpenWindow();
+        InputPromptWindow.Instance.SetupInputPromptWindow("New Folder",actions);
+    }
+
+    private void ConfirmCreateFolder(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            WarningMessageBox.Instance.DisplayWarning("Please enter name for new directory...");
+            return;
+        }
+        Directory.CreateDirectory(_currentPath +"\\"+ fileName);
+        RefreshList();
     }
     
     protected virtual void GotoFolder(string dir)

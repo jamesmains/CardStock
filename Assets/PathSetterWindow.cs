@@ -21,13 +21,6 @@ public class PathSetterWindow : FileExplorerWindow
         _cardController = FindObjectOfType<CardController>();
     }
 
-    public override void CreateFolder()
-    {
-        // Custom solution
-        UnityAction action = RefreshList;
-        DirectoryCreator.instance.PromptCreate(_currentPath,action);
-    }
-
     public void SetSavePath()
     {
         if (!Directory.Exists(_currentPath)) return;

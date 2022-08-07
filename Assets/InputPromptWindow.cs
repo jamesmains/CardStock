@@ -6,33 +6,49 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class InputPromptWindow : MonoBehaviour
+public class InputPromptWindow : Window
 {
-    
+    [SerializeField] private TextMeshProUGUI promptNameText;
     [SerializeField] private TMP_InputField inputField;
-    [SerializeField] private GameObject window;
-    [SerializeField] private GameObject clickProtection;
     [SerializeField] private GameObject emptyInputWarningDisplay;
 
     public UnityEvent onConfirm;
 
-    public void OpenWindow(Action[] actions)
+    public static InputPromptWindow Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+        CloseWindow();
+    }
+
+    public void SetupInputPromptWindow(string promptName, Action[] actions)
     {
         StopAllCoroutines();
-        clickProtection.SetActive(true);clickProtection.SetActive(true);
         emptyInputWarningDisplay.SetActive(false);
-        window.SetActive(true);
+        promptNameText.text = promptName;
         if (actions != null)
             foreach (var callBack in actions)
                 onConfirm.AddListener(delegate { callBack(); });
     }
 
-    public void CloseWindow()
+    public override void OpenWindow()
+    {
+        base.OpenWindow();
+        Reset();
+    }
+    
+    public override void CloseWindow()
+    {
+        base.CloseWindow();
+        Reset();
+    }
+
+    private void Reset()
     {
         StopAllCoroutines();
-        clickProtection.SetActive(false);
         emptyInputWarningDisplay.SetActive(false);
-        window.SetActive(false);
+        inputField.text = "";
     }
     
     public void ValidateInput()

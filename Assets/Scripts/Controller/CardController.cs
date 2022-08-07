@@ -25,7 +25,6 @@ public class CardController : MonoBehaviour
     [Header("Windows")]
     [SerializeField] private FileExplorerWindow imageWindow;
     [SerializeField] private FileExplorerWindow saveAsWindow;
-    [SerializeField] private InputPromptWindow cardNameInputWindow;
     
     [Header("Current Card Information")]
     [SerializeField] private TMP_InputField cardNameInput;
@@ -243,20 +242,21 @@ public class CardController : MonoBehaviour
         }
     }
     
-    public void TrySaveCard()
+    public void TrySaveCard(bool doSaveAs = false)
     {
         if (cardNameInput.text == String.Empty)
         {
             Action[] actions = new Action[2];
-            actions[0] = delegate { cardNameInput.text = cardNameInputWindow.GetInputText(); };
-            actions[1] = TrySaveCard;
-            cardNameInputWindow.OpenWindow(actions);
+            actions[0] = delegate { cardNameInput.text = InputPromptWindow.Instance.GetInputText(); };
+            actions[1] = delegate { TrySaveCard(doSaveAs); };
+            InputPromptWindow.Instance.OpenWindow();
+            InputPromptWindow.Instance.SetupInputPromptWindow("Save Card",actions);
             return;
         }
         
         var validPath = VerifyFilePath(ref SaveLoadCardElements.CardSavePath,"SavePath",PathTarget.Cards,"Save Path: ");
         var cardPath = SaveLoadCardElements.CardSavePath + "\\" + cardNameInput.text + ".card";
-        if (validPath == false || !File.Exists(cardPath))
+        if (validPath == false || (!File.Exists(cardPath) || doSaveAs))
         {
             saveAsWindow.OpenWindow();
         }
