@@ -31,6 +31,7 @@ public class TimedInfoPrompt : MonoBehaviour
     
     public void DisplayTimedPrompt(string msg)
     {
+        print(msg);
         if (_busy)
         {
             if(!_messageQueue.Contains(msg))

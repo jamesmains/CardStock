@@ -241,7 +241,12 @@ public class CardController : MonoBehaviour
             return true;
         }
     }
-    
+
+    public void SaveCardNoNameCheck()
+    {
+        ConfirmSaveCard();
+    }
+
     public void TrySaveCard(bool doSaveAs = false)
     {
         if (cardNameInput.text == String.Empty)
@@ -309,6 +314,7 @@ public class CardController : MonoBehaviour
 
     public void TurnOffMessages(bool state)
     {
+        print(state);
         _skipMessages = state;
     }
 

@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class FileExplorerWindow : Window
+    public class FileExplorerWindow : Window
 {
     [Header("Display Settings")] 
     [SerializeField] protected Sprite goBackIcon;

@@ -87,6 +87,7 @@ public class TSVSheetController : MonoBehaviour
             CardController.instance.SetCardName(line[nameCell]);
             foreach (var item in items)
             {
+                if(item == null) continue;
                 if (item.GetComponent<TextSelect>() == null) continue;
                 for (int i = 0; i < lineLength; i++)
                 {
@@ -97,8 +98,7 @@ public class TSVSheetController : MonoBehaviour
             yield return new WaitForEndOfFrame();
             if (_state == 0)
             {
-                if (!CardController.instance.SaveCard())
-                    yield return null;
+                CardController.instance.SaveCardNoNameCheck();
             }
             else if(_state == 1)
                 CardController.instance.TakeScreenShot();
@@ -107,7 +107,7 @@ public class TSVSheetController : MonoBehaviour
             BatchTaskDisplay.single.Tick();
         }
         BatchTaskDisplay.single.EndTask(1f,"Finished!");
-        CardController.instance.TurnOffMessages(true);
+        CardController.instance.TurnOffMessages(false);
     }
 
     private bool GetItems()

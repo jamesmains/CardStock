@@ -404,6 +404,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _rect.anchoredPosition = pos;
         CardController.instance.recentlySaved = false;
         UpdateInfoBox();
+        UpdatePosition();
     }
     
     private void ToggleFlipX(bool state)

@@ -51,15 +51,18 @@ namespace JimJam.Interface
             PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
             eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
             EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-            foreach (var hit in results)
+            for (int i = 0; i < results.Count; i++)
             {
-                var button = hit.gameObject.GetComponent<Button>()?.interactable;
-                var toggle = hit.gameObject.GetComponent<Toggle>()?.interactable;
-                var inputField = hit.gameObject.GetComponent<TMP_InputField>()?.interactable;
+                var button = results[i].gameObject.GetComponent<Button>()?.interactable;
+                var toggle = results[i].gameObject.GetComponent<Toggle>()?.interactable;
+                var inputField = results[i].gameObject.GetComponent<TMP_InputField>()?.interactable;
+                var cursorBlock = results[i].gameObject.GetComponent<CursorBlock>();
                 if ((button != null && (bool)button) || (toggle != null && (bool)toggle))
                     return 1;
                 else if (inputField != null && (bool)inputField)
                     return 2;
+                else if (cursorBlock != null)
+                    return 0;
             }
             return 0;
         }
