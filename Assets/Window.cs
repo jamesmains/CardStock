@@ -26,7 +26,9 @@ public class Window : MonoBehaviour
             if (CurrentWindow != this)
             {
                 CurrentWindow.CloseWindow();
+                CurrentWindow = this;
             }
         }
+        else CurrentWindow = this;
     }
 }

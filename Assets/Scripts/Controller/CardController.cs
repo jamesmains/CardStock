@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 public class CardController : MonoBehaviour
 {
+    [SerializeField] private GameObject cardControllerCanvas;
     [Header("Prefabs")]
     [SerializeField] private GameObject newImageObject;
     [SerializeField] private GameObject newTextObject;
@@ -30,6 +31,7 @@ public class CardController : MonoBehaviour
     [SerializeField] private TMP_InputField cardNameInput;
     [SerializeField] private TextMeshProUGUI templateDisplay;
 
+    public string ExportPath => _exportPath;
     private string _exportPath;
     private string _savePath;
     private string _massExportTargetsPath;
@@ -76,6 +78,30 @@ public class CardController : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.S))
                 TrySaveCard();
         }
+    }
+
+    public void ToggleCardController(bool state)
+    {
+        if(!state)
+        {
+            if (!recentlySaved)
+            {
+                WarningMessageBox.Instance.DisplayWarning("You have unsaved changes. Open Page Planner anyways?"
+                    , delegate { ConfirmToggleCardController();
+                        recentlySaved = true;
+                    });
+            }
+            else ConfirmToggleCardController();
+        }
+        else cardControllerCanvas.SetActive(true);
+        
+    }
+
+    private void ConfirmToggleCardController()
+    {
+        ConfirmClearCard();
+        cardControllerCanvas.SetActive(false);
+        GetComponent<PagePlannerController>().TogglePagePlanner(true);
     }
 
     public void AddTextObject()

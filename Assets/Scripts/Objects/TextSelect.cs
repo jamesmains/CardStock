@@ -63,6 +63,12 @@ public class TextSelect : SelectableItem
         
         ChangeText("New Text");
     }
+
+    protected override void Update()
+    {
+        base.Update();
+        SetFontSizeDisplay();
+    }
     
     public override void SelectItem()
     {
@@ -99,12 +105,6 @@ public class TextSelect : SelectableItem
         _autoSizeToggle.interactable = state;
     }
 
-    protected override void SetRotation()
-    {
-        base.SetRotation();
-        //_textEditorBox.text = _text.text;
-    }
-
     protected override void AssignCallbacks()
     {
          base.AssignCallbacks();
@@ -125,6 +125,16 @@ public class TextSelect : SelectableItem
 
         _setFontSizeInput.onValueChanged.AddListener(delegate { ChangeFontSize(_setFontSizeInput.text); });
         _autoSizeToggle.onValueChanged.AddListener(delegate { ToggleAutoSize(_autoSizeToggle.isOn); });
+        
+        _resetScaleButton.onClick.AddListener(SetFontSizeDisplay);
+        _resetPositionButton.onClick.AddListener(SetFontSizeDisplay);
+        _stretchX.onClick.AddListener(SetFontSizeDisplay);
+        _stretchY.onClick.AddListener(SetFontSizeDisplay);
+        _stretchFill.onClick.AddListener(SetFontSizeDisplay);
+        _posXInput.onSubmit.AddListener(delegate { SetFontSizeDisplay(); });
+        _posYInput.onSubmit.AddListener(delegate { SetFontSizeDisplay(); });
+        _scaleXInput.onSubmit.AddListener(delegate { SetFontSizeDisplay(); });
+        _scaleYInput.onSubmit.AddListener(delegate { SetFontSizeDisplay(); });
     }
 
     protected override void ClearCallbacks()
@@ -248,7 +258,7 @@ public class TextSelect : SelectableItem
 
     private void ChangeFontSize(string size)
     {
-        if(String.IsNullOrEmpty(size)) return;
+        if(String.IsNullOrEmpty(size) || _autoSize) return;
         if (String.IsNullOrEmpty(_fontSize))
         {
             size = "36";
@@ -258,6 +268,12 @@ public class TextSelect : SelectableItem
         _text.fontSize = i;
         _fontSize = i.ToString(CultureInfo.CurrentCulture);
         CardController.instance.recentlySaved = false;
+    }
+
+    private void SetFontSizeDisplay()
+    {
+        if (!_autoSize) return;
+        _setFontSizeInput.text = _text.fontSize.ToString(CultureInfo.CurrentCulture);
     }
 
     private void ToggleStyle(ref bool style)

@@ -71,7 +71,6 @@ public class FileListObject : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _highlight.color = selected;
         _selected = true;
         SelectedFileListObject = this;
-        print(SelectedFileListObject);
         _onSelect.Invoke();
     }
     

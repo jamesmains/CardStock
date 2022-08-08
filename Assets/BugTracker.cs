@@ -52,20 +52,18 @@ public class BugTracker : MonoBehaviour
         // string test = "\"labels\":[{\"id\": \"62eb162a817275364e16092c\",\"idBoard\": \"62eb162a817275364e1608e1\",\"name\": \"Blocked\",\"color\": \"red\"}]";
         string url = $"https://api.trello.com/1/cards?key={APIKey}&token={APIToken}&idList={ListID}&name={bugNameInput.text}&desc={bugDetailsInput.text}";
         UnityWebRequest createModel = UnityWebRequest.Post(url, "POST");
-
-        bugNameInput.text = bugDetailsInput.text = "";
-        
         StartCoroutine(SendPost(createModel));
     }
     
     public IEnumerator SendPost(UnityWebRequest req)
     {
-        Debug.Log("Sending...");
         yield return req.SendWebRequest();
         print(req.downloadHandler.text);
         _bugsReported++;
         if (_bugsReported >= 5)
             StartCoroutine(DoCooldown());
+        
+        bugNameInput.text = bugDetailsInput.text = "";
         bugTrackerWindow.CloseWindow();
     }
 

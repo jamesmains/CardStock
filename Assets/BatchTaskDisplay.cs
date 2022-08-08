@@ -10,11 +10,14 @@ public class BatchTaskDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI taskNameDisplay;
     [SerializeField] private TextMeshProUGUI progressDisplay;
     [SerializeField] private Slider progressSlider;
-    [SerializeField] private ColorTinter mask;
+    
 
+
+    private float _fadeSpeed = 10f;
     private int _value;
     private bool _doingTask;
     private Image _clickProtection;
+    private CanvasGroup _mask;
 
     public static BatchTaskDisplay single;
 
@@ -22,6 +25,9 @@ public class BatchTaskDisplay : MonoBehaviour
     {
         single = this;
         _clickProtection = GetComponent<Image>();
+        _mask = GetComponent<CanvasGroup>();
+        _mask.alpha = 0;
+        StopAllCoroutines();
     }
 
     public bool SetupTask(string taskName, int startingValue, int maxValue)
@@ -36,7 +42,7 @@ public class BatchTaskDisplay : MonoBehaviour
         _value = startingValue;
 
         _clickProtection.enabled = true;
-        mask.ToggleFade(false);
+        StartCoroutine(DoFade(0, 1));
         _doingTask = true;
         return true;
     }
@@ -55,7 +61,18 @@ public class BatchTaskDisplay : MonoBehaviour
             TimedInfoPrompt.single.DisplayTimedPrompt(endMessage);
 
         _clickProtection.enabled = false;
-        mask.ToggleFade(true,delayTime);
+        StopAllCoroutines();
+        StartCoroutine(DoFade(delayTime, 0));
         _doingTask = false;
+    }
+    
+    IEnumerator DoFade(float delayTime, float target)
+    {
+        yield return new WaitForSeconds(delayTime);
+        while (Math.Abs(_mask.alpha - target) > 0.000099f)
+        {
+            _mask.alpha= Mathf.Lerp(_mask.alpha, target, Time.deltaTime * _fadeSpeed);
+            yield return null;
+        }
     }
 }

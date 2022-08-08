@@ -184,6 +184,15 @@ using UnityEngine.Events;
         _currentPath = dir;
         RefreshList();
     }
+    
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if(hasFocus)
+        {
+            CloseWindow();
+            OpenWindow();
+        }
+    }
 }
 
 [Serializable]

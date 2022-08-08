@@ -11,10 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Card Maker Mac.unity
     guid: 01f91154de63ea049b419a4c3de01ff9
-  - enabled: 1
+  - enabled: 0
     path: Assets/Page Planner.unity
     guid: a6a963ac2a87449449df60936c70a388
-  - enabled: 1
+  - enabled: 0
     path: Assets/Board Builder.unity
     guid: 1a04885ca70d5094ba67b5c04d1bdca6
   m_configObjects: {}

@@ -12,10 +12,10 @@ using UnityEngine.EventSystems;
 public class SelectableItem : MonoBehaviour, IPointerDownHandler
 {
     // Controls
-    private Slider _rotationSlider;
-    private Button _resetScaleButton, _resetPositionButton, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill, _copy, _paste;
-    private TMP_InputField _scaleXInput, _scaleYInput, _posXInput, _posYInput, _objectNameInput, _objectTag;
-    private Toggle _flipX, _flipY, _lock, _expose;
+    protected Slider _rotationSlider;
+    protected Button _resetScaleButton, _resetPositionButton, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill, _copy, _paste;
+    protected TMP_InputField _scaleXInput, _scaleYInput, _posXInput, _posYInput, _objectNameInput, _objectTag;
+    protected Toggle _flipX, _flipY, _lock, _expose;
     
     // Refs
     protected Selection _selectionBox;
@@ -96,7 +96,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         SetTag("-1");
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if(Input.GetMouseButtonDown(1))
             DeselectItem();

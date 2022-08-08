@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 public class PagePlannerController : MonoBehaviour
 {
-    [SerializeField] private List<Sprite> TEST = new List<Sprite>();
+    [SerializeField] private GameObject pagePlannerCanvas;
     [SerializeField] private List<PageType> pageTypes;
     [Header("Containers")]
     [SerializeField] private GameObject plannerItemObject;
@@ -42,8 +42,6 @@ public class PagePlannerController : MonoBehaviour
     private void Start()
     {
         _imageExporter = GetComponent<ImageExporter>();
-        UpdateCardSelectionList();
-        // UpdatePage();
         TogglePageType();
     }
 
@@ -55,6 +53,14 @@ public class PagePlannerController : MonoBehaviour
             _cardModState = 2;
         else _cardModState = 0;             // null
     }
+
+    public void TogglePagePlanner(bool state)
+    {
+        pagePlannerCanvas.SetActive(state);
+        if (!state)
+            GetComponent<CardController>().ToggleCardController(true);
+        else ClearPage();
+    }
     
     public void GotoPage(int dir) 
     {
@@ -65,6 +71,13 @@ public class PagePlannerController : MonoBehaviour
     public void RefreshCardList()
     {
         UpdateCardSelectionList();
+        UpdatePage();
+    }
+
+    private void ClearPage()
+    {
+        ClearPreviewContainer();
+        _cardSprites.Clear();
         UpdatePage();
     }
     
@@ -138,21 +151,36 @@ public class PagePlannerController : MonoBehaviour
     {
         _cardSprites.Clear();
         ClearPreviewContainer();
-        
-        var files = Directory.GetFiles(PathSetterWindow.ExportPath == null ? $"{Application.dataPath}/Card Stock/Cards/" : PathSetterWindow.ExportPath);
+        StartCoroutine(DoGetFiles());
+    }
+
+    private IEnumerator DoGetFiles()
+    {
+        string path = string.IsNullOrEmpty(PagePlannerPathSetter.CardListPath)
+            ? PathTarget.Exports
+            : PagePlannerPathSetter.CardListPath;
+        var files = Directory.GetFiles(path).Where(o => !o.Contains(".meta")).ToList();
+        var canDoTask = BatchTaskDisplay.single.SetupTask("Loading cards",0,files.Count);
+        if (!canDoTask)
+        {
+            TimedInfoPrompt.single.DisplayTimedPrompt("Busy with task...");
+            yield break;
+        }
         int indexer = 0;
         foreach (var file in files)
         {
             var data = LoadTexture(file);
             if(data == null) continue;
             AddImageSelectionPreview(data.Item1, data.Item2);
+            yield return new WaitForEndOfFrame();
+            BatchTaskDisplay.single.Tick();
             indexer++;
         }
-
         if (indexer == 0)
         {
             print("No images");
         }
+        BatchTaskDisplay.single.EndTask(1f,"Finished pulling cards!");
     }
     
     public void ExportCurrentPage()
@@ -169,6 +197,12 @@ public class PagePlannerController : MonoBehaviour
             return;
         }
 
+        StartCoroutine(DoExportPage());
+
+    }
+
+    private IEnumerator DoExportPage()
+    {
         List<Sprite> pageCards = new List<Sprite>();
         int cardIndex = (_pageIndex-1) * cardsPerPage;
         for (int i = cardIndex; i < cardIndex+cardsPerPage+1; i++)
@@ -176,9 +210,8 @@ public class PagePlannerController : MonoBehaviour
             if (i >= _cardSprites.Count)
                 break;
             pageCards.Add(_cardSprites[i]);
+            yield return new WaitForEndOfFrame();
         }
-
-        TEST = pageCards;
         _imageExporter.ExportPage(pageCards,$"{batchNameEditor.text}_{_pageIndex}",_col,_row,_exportCompression);
     }
 
@@ -197,12 +230,21 @@ public class PagePlannerController : MonoBehaviour
 
     IEnumerator DoBatchExport()
     {
+        var canDoTask = BatchTaskDisplay.single.SetupTask("Exporting pages",0,_pageCount);
+        if (!canDoTask)
+        {
+            TimedInfoPrompt.single.DisplayTimedPrompt("Busy with task...");
+            yield break;
+        }
         for (int i = 0; i < _pageCount; i++)
         {
-            ExportCurrentPage();
-            yield return new WaitForEndOfFrame();
+            yield return StartCoroutine(DoExportPage());
             GotoPage(1);
+            yield return new WaitForEndOfFrame();
+            BatchTaskDisplay.single.Tick();
         }
+        
+        BatchTaskDisplay.single.EndTask(1f,"Finished pulling cards!");
     }
     
     private void AdjustCardCount(Sprite key)
