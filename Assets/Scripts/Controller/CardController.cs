@@ -12,7 +12,13 @@ using UnityEngine.UI;
 
 public class CardController : MonoBehaviour
 {
+    public enum CardDisplayTypes
+    {
+        portrait,landscape
+    }
+    
     [SerializeField] private GameObject cardControllerCanvas;
+    [SerializeField] private Transform cardFrame; 
     [Header("Prefabs")]
     [SerializeField] private GameObject newImageObject;
     [SerializeField] private GameObject newTextObject;
@@ -40,6 +46,8 @@ public class CardController : MonoBehaviour
     private bool _onlyShowExposed;
     private bool _skipMessages;
     private FileListObject _currentFileSelection;
+    public CardDisplayTypes DisplayMode => _displayMode;
+    private CardDisplayTypes _displayMode;
     
     [HideInInspector]
     public List<SelectableItem> cardElements;
@@ -102,6 +110,33 @@ public class CardController : MonoBehaviour
         ConfirmClearCard();
         cardControllerCanvas.SetActive(false);
         GetComponent<PagePlannerController>().TogglePagePlanner(true);
+    }
+
+    public void ToggleCardDisplay()
+    {
+        if(_displayMode == CardDisplayTypes.landscape)
+            SetCardDisplay(CardDisplayTypes.portrait);
+        else SetCardDisplay(CardDisplayTypes.landscape);
+    }
+    
+    private void SetCardDisplay(CardDisplayTypes mode)
+    {
+        _displayMode = mode;
+        switch (mode)
+        {
+            case CardDisplayTypes.landscape:
+            {
+                cardContainer.localScale = cardFrame.localScale = new Vector3(0.7f, 0.7f, 1f);
+                cardContainer.rotation = cardFrame.rotation = Quaternion.Euler(0f, 0f, 90f);
+                break;   
+            }
+            case CardDisplayTypes.portrait:
+            {
+                cardContainer.localScale = cardFrame.localScale = Vector3.one;
+                cardContainer.rotation = cardFrame.rotation = Quaternion.Euler(0f, 0f, 0f);
+                break;   
+            }
+        }
     }
 
     public void AddTextObject()
@@ -468,7 +503,7 @@ public class CardController : MonoBehaviour
             WarningMessageBox.Instance.DisplayWarning("Please enter file name...");
             return;
         }
-        
+        SetCardDisplay(CardDisplayTypes.portrait);
         SetExportPath(_exportPath);
         if(SelectableItem.SelectedItem!=null) SelectableItem.SelectedItem.DeselectItem();
         if(LayerListObject.SelectedLayerListObject) LayerListObject.SelectedLayerListObject.Deselect();

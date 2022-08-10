@@ -21,7 +21,10 @@ public class Draggable : MonoBehaviour, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        _rect.anchoredPosition += eventData.delta / _canvas.scaleFactor;
+        Vector2 input = CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape
+            ? new Vector2(eventData.delta.y, -eventData.delta.x) * 1.45f
+            : eventData.delta;
+        _rect.anchoredPosition += input / _canvas.scaleFactor;
         onDrag.Invoke();
         CardController.instance.recentlySaved = false;
     }

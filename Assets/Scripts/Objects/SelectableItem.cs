@@ -12,9 +12,9 @@ using UnityEngine.EventSystems;
 public class SelectableItem : MonoBehaviour, IPointerDownHandler
 {
     // Controls
-    protected Slider _rotationSlider;
+    // protected Slider _rotationSlider;
     protected Button _resetScaleButton, _resetPositionButton, _delete, _colorPickerToggle, _centerX, _centerY, _stretchX, _stretchY, _stretchFill, _copy, _paste;
-    protected TMP_InputField _scaleXInput, _scaleYInput, _posXInput, _posYInput, _objectNameInput, _objectTag;
+    protected TMP_InputField _scaleXInput, _scaleYInput, _posXInput, _posYInput, _rotationInput, _objectNameInput, _objectTag;
     protected Toggle _flipX, _flipY, _lock, _expose;
     
     // Refs
@@ -30,6 +30,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private Vector2 _resetScale, _resetPosition;
     private bool _colorSelectionLock;
     private bool _tempMoveLock = false;
+    private bool _tempRotationLock = false;
 
     // Data
     private bool _isFlippedX;
@@ -60,10 +61,15 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _draggable              = GetComponent<Draggable>();
         
         _rect                   = GetComponent<RectTransform>();
+        _rect.transform.localRotation = CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape
+            ? Quaternion.Euler(0, 0, 270)
+            : Quaternion.Euler(Vector3.zero);
+        
         _resetScale             = _rect.sizeDelta;
         _resetPosition          = _rect.anchoredPosition;
         
-        _rotationSlider         = GameObject.FindWithTag("ElementRotationSlider").GetComponent<Slider>();
+        // _rotationSlider         = GameObject.FindWithTag("ElementRotationSlider").GetComponent<Slider>();
+        _rotationInput         = GameObject.FindWithTag("SetRotation").GetComponent<TMP_InputField>();
         _scaleXInput            = GameObject.FindWithTag("SetScaleX").GetComponent<TMP_InputField>();
         _scaleYInput            = GameObject.FindWithTag("SetScaleY").GetComponent<TMP_InputField>();
         _posXInput              = GameObject.FindWithTag("SetPosX").GetComponent<TMP_InputField>();
@@ -88,8 +94,8 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _selectionBox           = FindObjectOfType<Selection>();
         _colorPicker            = GameObject.FindWithTag("ColorPicker").GetComponent<ColorPicker>();
         
-        _rotationSlider.minValue = 0;
-        _rotationSlider.maxValue = 360;
+        // _rotationSlider.minValue = 0;
+        // _rotationSlider.maxValue = 360;
         _draggable.onDrag.AddListener(UpdatePosition);
         
         SetName(this.gameObject.name);
@@ -123,7 +129,9 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     
     protected virtual void SetRotation()
     {
-        _rotationSlider.value = _rect.rotation.eulerAngles.z;
+        _tempRotationLock = true;
+        _rotationInput.text = _rect.rotation.eulerAngles.z.ToString();
+        _tempRotationLock = false;
     }
 
     protected virtual void CheckBounds()
@@ -132,7 +140,11 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         var pos = localPosition;
         pos.x = pos.x < _boundsX.x ? _boundsX.x : pos.x > _boundsX.y ? _boundsX.y : pos.x;
         pos.y = pos.y < _boundsY.x ? _boundsY.x : pos.y > _boundsY.y ? _boundsY.y : pos.y;
-        
+        if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape)
+        {
+            (localPosition.y, localPosition.x) = (localPosition.x, -localPosition.y);
+            localPosition *= 0.7f;
+        }
         _selectionBox.HighlightArea(_rect.sizeDelta,localPosition);
     }
 
@@ -174,13 +186,13 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _lock.onValueChanged.AddListener(delegate  { ToggleLock(_lock.isOn); });
         _expose.onValueChanged.AddListener(delegate  { ToggleExpose(_expose.isOn); });
         
-        _rotationSlider.onValueChanged.AddListener(SelectedItem.Rotate);
+        _rotationInput.onValueChanged.AddListener(SelectedItem.Rotate);
         ToggleControls(true);
     }
 
     protected virtual void ClearCallbacks()
     {
-        _rotationSlider.onValueChanged.RemoveAllListeners();
+        _rotationInput.onValueChanged.RemoveAllListeners();
         _scaleXInput.onValueChanged.RemoveAllListeners();
         _scaleYInput.onValueChanged.RemoveAllListeners();
         _posXInput.onValueChanged.RemoveAllListeners();
@@ -243,7 +255,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         ToggleFlipX(data.FlippedX);
         ToggleFlipY(data.FlippedY);
         ToggleLock(data.Locked);
-        Rotate(data.Rotation);
+        Rotate(data.Rotation.ToString());
         SetName(Name);
         SetTag(data.Tag.ToString());
     }
@@ -307,12 +319,16 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         CardController.instance.recentlySaved = false;
     }
 
-    private void Rotate(float r)
+    private void Rotate(string rotationString)
     {
-        if (SelectedItem != this) return;
-        var rot = _rect.rotation.eulerAngles;
+        if (SelectedItem != this || _tempRotationLock) return;
+        bool valid = int.TryParse(rotationString, out var r);
+        if (!valid) return;
+        r = r > 360 ? 360 : r < 0 ? 0 : r;
+        var rot = _rect.localRotation.eulerAngles;
         rot.z = r;
-        _rect.rotation = Quaternion.Euler(rot);
+        print(rot.z);
+        _rect.localRotation = Quaternion.Euler(rot);
         _rotation = (int)rot.z;
         
         CardController.instance.recentlySaved = false;
@@ -495,6 +511,13 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         UpdateInfoBox();
     }
 
+    private void UpdateRotation()
+    {
+        _tempRotationLock = true;
+        _rotationInput.text = _rect.localRotation.z.ToString();
+        _tempRotationLock = false;
+    }
+
     private void ClearInfoBox()
     {
         _objectTag.text = _posXInput.text = _posYInput.text = _scaleXInput.text = _scaleYInput.text = "";
@@ -507,7 +530,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
 
     protected virtual void ToggleControls(bool state)
     {
-        _rotationSlider.interactable = state;
+        _rotationInput.interactable = state;
         _scaleXInput.interactable = state; 
         _scaleYInput.interactable = state;
         _posXInput.interactable = state;
