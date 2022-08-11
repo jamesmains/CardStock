@@ -26,18 +26,15 @@ public class ScreenshotHandler : MonoBehaviour
     public static ScreenshotHandler instance;
 
     private Camera _myCamera;
-    private static string _fileName;
-    private static string _exportPath;
     
     private void Awake() {
         instance = this;
         _myCamera = gameObject.GetComponent<Camera>();
-        
     }
 
-    public IEnumerator DoScreenShot()
+    public IEnumerator DoScreenShot(string fileName, string exportPath)
     {
-        RenderTexture renderTexture = _myCamera.targetTexture;
+        RenderTexture renderTexture = RenderTexture.GetTemporary(1, 1, 16);;
 
         float offset = Screen.width / _canvasScaler.referenceResolution.x;
         
@@ -59,24 +56,10 @@ public class ScreenshotHandler : MonoBehaviour
         
         renderResult.ReadPixels(rect, 0, 0);
         byte[] byteArray = renderResult.EncodeToPNG();
-        System.IO.File.WriteAllBytes(_exportPath + $"\\{_fileName}.png", byteArray);
+        System.IO.File.WriteAllBytes(exportPath + $"\\{fileName}.png", byteArray);
         
         RenderTexture.ReleaseTemporary(renderTexture);
-        _myCamera.targetTexture = null;
+        instance._myCamera.targetTexture = null;
         yield return new WaitForEndOfFrame();
-    }
-
-    private void TakeScreenshot() 
-    {
-        _myCamera.targetTexture = RenderTexture.GetTemporary(1, 1, 16);
-        StartCoroutine(DoScreenShot());
-    }
-
-    public static void TakeScreenshot_Static(string fileName, string exportPath)
-    {
-        _fileName = fileName;
-        _exportPath = exportPath;
-        // instance.TakeScreenshot();
-        instance._myCamera.targetTexture = RenderTexture.GetTemporary(1, 1, 16);
     }
 }

@@ -10,6 +10,6 @@ public class CardStockHeader : MonoBehaviour
 
     private void Awake()
     {
-        appVersionDisplay.text = CardStockAppInfo.AppVersion;
+        appVersionDisplay.text = $"CardStock v{Application.version}";
     }
 }

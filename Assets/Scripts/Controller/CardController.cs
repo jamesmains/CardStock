@@ -75,7 +75,7 @@ public class CardController : MonoBehaviour
 
     private void Start()
     {
-        imageWindow.OpenWindow();
+        // imageWindow.OpenWindow();
     }
 
     private void Update()
@@ -514,8 +514,7 @@ public class CardController : MonoBehaviour
     IEnumerator Screenshot()
     {
         yield return new WaitForEndOfFrame();
-        ScreenshotHandler.TakeScreenshot_Static(cardNameInput.text,_exportPath);
-        yield return StartCoroutine(ScreenshotHandler.instance.DoScreenShot());
+        yield return StartCoroutine(ScreenshotHandler.instance.DoScreenShot(cardNameInput.text,_exportPath));
         if(!_skipMessages)
             TimedInfoPrompt.single.DisplayTimedPrompt($"Exported {cardNameInput.text}");
     }
