@@ -42,21 +42,21 @@ public class TextSelect : SelectableItem
 
         _textEditorBox = GameObject.FindWithTag("TextEditorBox").GetComponent<TMP_InputField>();
         
-        _alignLeft = GameObject.FindWithTag("TextAlignLeft").GetComponent<Button>();
-        _alignCenter = GameObject.FindWithTag("TextAlignCenter").GetComponent<Button>();
-        _alignRight = GameObject.FindWithTag("TextAlignRight").GetComponent<Button>();
-        _alignTop = GameObject.FindWithTag("TextAlignTop").GetComponent<Button>();
-        _alignMiddle = GameObject.FindWithTag("TextAlignMiddle").GetComponent<Button>();
-        _alignBottom = GameObject.FindWithTag("TextAlignBottom").GetComponent<Button>();
+        _alignLeft      = GameObject.FindWithTag("TextAlignLeft").GetComponent<Button>();
+        _alignCenter    = GameObject.FindWithTag("TextAlignCenter").GetComponent<Button>();
+        _alignRight     = GameObject.FindWithTag("TextAlignRight").GetComponent<Button>();
+        _alignTop       = GameObject.FindWithTag("TextAlignTop").GetComponent<Button>();
+        _alignMiddle    = GameObject.FindWithTag("TextAlignMiddle").GetComponent<Button>();
+        _alignBottom    = GameObject.FindWithTag("TextAlignBottom").GetComponent<Button>();
         
         _styleBold      = GameObject.FindWithTag("TextBold").GetComponent<Button>();
         _styleItalics   = GameObject.FindWithTag("TextItalics").GetComponent<Button>();
         _styleUnderline = GameObject.FindWithTag("TextUnderline").GetComponent<Button>();
-        _dropdown = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>();
-        _fontSelection = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>().GetComponent<FontSelection>();
-        _setFontSizeInput = GameObject.FindWithTag("TextFontSize").GetComponent<TMP_InputField>();
-        _windowMover = GameObject.FindWithTag("TextProperties").GetComponent<SmoothMoves>();
-        _text = GetComponent<TextMeshProUGUI>();
+        _dropdown       = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>();
+        _fontSelection  = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>().GetComponent<FontSelection>();
+        _setFontSizeInput   = GameObject.FindWithTag("TextFontSize").GetComponent<TMP_InputField>();
+        _windowMover        = GameObject.FindWithTag("TextProperties").GetComponent<SmoothMoves>();
+        _text               = GetComponent<TextMeshProUGUI>();
         _text.fontSizeMax = 300;
         
         _autoSizeToggle = GameObject.FindWithTag("TextAutoSize").GetComponent<Toggle>();

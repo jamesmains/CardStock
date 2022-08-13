@@ -8,6 +8,9 @@ using UnityEngine.EventSystems;
 
 public class FancyButton : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler, IPointerUpHandler, IPointerClickHandler
 {
+    /// <summary>
+    /// Allows the use of right clicking whereas the default button does not
+    /// </summary>
     [SerializeField] private Color normal, highlight, click;
     [SerializeField] private float fadeSpeed;
     private Image _display;
@@ -30,7 +33,6 @@ public class FancyButton : MonoBehaviour, IPointerDownHandler, IPointerEnterHand
     public void OnPointerClick(PointerEventData eventData)
     {
         onClick.Invoke();
-        
     }
 
     public void OnPointerEnter(PointerEventData eventData)

@@ -27,6 +27,13 @@ public static class PathTarget
     public static string Exports = $"{Application.dataPath}/Card Stock/Exports/";
     public static string TSVSheets = $"{Application.dataPath}/Card Stock/TSVSheets/";
 
+    public static string PagePlannerCardListPath;
+    public static string CardExportPath;
+    public static string CardSavePath;
+    public static string CardBatchExprotPath;
+    public static string LoadedCardPath;
+    public static string LoadedCardTemplatePath;
+
     static PathTarget()
     {
         CheckPath(App);

@@ -6,10 +6,8 @@ using UnityEngine;
 
 public class CardStockHeader : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI appVersionDisplay;
-
     private void Awake()
     {
-        appVersionDisplay.text = $"CardStock v{Application.version}";
+        GetComponent<TextMeshProUGUI>().text = $"CardStock v{Application.version}";
     }
 }

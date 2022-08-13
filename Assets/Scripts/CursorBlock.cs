@@ -4,15 +4,5 @@ using UnityEngine;
 
 public class CursorBlock : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // DO NOT DELETE, USED FOR CURSOR DETECTION -- See CursorDisplayController.cs
 }

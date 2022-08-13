@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Currently cannot rename this class as it will break loading cards
+/// </summary>
+
 [Serializable]
 public class Element
 {
