@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JimJam.Gameplay;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,12 +11,14 @@ using UnityEngine.UI;
 public class ImageSelectionWindow : FileExplorerWindow
 {
     [SerializeField] private GameObject imageFolderPrefab;
+    
     private List<string> _paths = new List<string>();
     private List<Sprite> _sprites = new List<Sprite>();
-    private Dictionary<string, Texture2D> _loadedTextures = new Dictionary<string, Texture2D>();
     private List<Texture2D> _imageList = new List<Texture2D>();
+    private Dictionary<string, Texture2D> _loadedTextures = new Dictionary<string, Texture2D>();
     private bool _canLoad = true;
     private Texture2D _currentTexture;
+    private SmoothMoves _mover;
 
     public void ConfirmImageSelection(FileListObject obj)
     {
@@ -122,6 +125,7 @@ public class ImageSelectionWindow : FileExplorerWindow
     {
         if (showDirectories)
         {
+            print(_currentPath);
             var directories = Directory.GetDirectories(_currentPath);
             foreach (var folder in directories)
             {
@@ -143,6 +147,29 @@ public class ImageSelectionWindow : FileExplorerWindow
         return actions;
     }
 
+    public override void OpenWindow()
+    {
+        _rootPath = PathTarget.Images;
+        _currentPath = _rootPath;
+        _rootPath = _rootPath.Replace('/', '\\');
+        if(_rootPath[^1] == '\\')
+            _rootPath = _rootPath.Remove(_rootPath.Length-1);
+        _currentPath = _currentPath.Replace('/', '\\');
+        if(_currentPath[^1] == '\\')
+            _currentPath = _currentPath.Remove(_currentPath.Length-1);
+            
+        _currentPath = string.IsNullOrEmpty(_currentPath) ? _rootPath : _currentPath;
+        base.OpenWindow();
+        RefreshList();
+    }
+
+    public override void CloseWindow()
+    {
+        if (_mover == null)
+            _mover = GetComponent<SmoothMoves>();
+        _mover.GotoStart();
+    }
+    
     IEnumerator LoadTexture(string filePath)
     {
         Texture2D Tex2D;
