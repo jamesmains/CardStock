@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 9f51c9f21b9b1d14ba2a07e53137d8ce
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Sublima
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: debf9be105f251f41ba2080e636ccf5a, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

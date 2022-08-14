@@ -327,7 +327,6 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         r = r > 360 ? 360 : r < 0 ? 0 : r;
         var rot = _rect.localRotation.eulerAngles;
         rot.z = r;
-        print(rot.z);
         _rect.localRotation = Quaternion.Euler(rot);
         _rotation = (int)rot.z;
         

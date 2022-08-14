@@ -63,7 +63,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.759434, g: 0.8446154, b: 1, a: 1}
+  m_Color: {r: 0.67058825, g: 0.67058825, b: 0.67058825, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -93,9 +93,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectName: 
-  hover: {r: 0.7607843, g: 0.84313726, b: 1, a: 0.38431373}
+  hover: {r: 0.67058825, g: 0.67058825, b: 0.67058825, a: 0.38431373}
   hidden: {r: 0, g: 0, b: 0, a: 0}
-  selected: {r: 0.7607843, g: 0.84313726, b: 1, a: 0.8666667}
+  selected: {r: 0.67058825, g: 0.67058825, b: 0.67058825, a: 0.8666667}
   displayIcon: {fileID: 5076214967746088878}
   nameDisplay: {fileID: 0}
   requireDoubleClick: 1
@@ -162,7 +162,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 5076214967148513768}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
@@ -226,7 +226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

@@ -409,7 +409,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -417,15 +417,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: File Name
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 995529c00b7ae7d4e960624acafa3ad3, type: 2}
-  m_sharedMaterial: {fileID: -8780890052231296415, guid: 995529c00b7ae7d4e960624acafa3ad3, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
+  m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4292006610
+  m_fontColor: {r: 0.8235294, g: 0.8235294, b: 0.8235294, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -547,7 +547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.759434, g: 0.8446154, b: 1, a: 1}
+  m_Color: {r: 0.67058825, g: 0.67058825, b: 0.67058825, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -598,12 +598,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectName: 
-  hover: {r: 0.7607843, g: 0.84313726, b: 1, a: 0.38431373}
+  hover: {r: 0.67058825, g: 0.67058825, b: 0.67058825, a: 0.38431373}
   hidden: {r: 0, g: 0, b: 0, a: 0}
-  selected: {r: 0.7607843, g: 0.84313726, b: 1, a: 0.8666667}
+  selected: {r: 0.67058825, g: 0.67058825, b: 0.67058825, a: 0.8666667}
   displayIcon: {fileID: 0}
   nameDisplay: {fileID: 8369132716363286209}
   requireDoubleClick: 0
+  filePath: 
+  extraData: 0
   nameInput: {fileID: 0}
   layerUpButton: {fileID: 3627499156260347358}
   layerDownButton: {fileID: 3627499156217481460}
