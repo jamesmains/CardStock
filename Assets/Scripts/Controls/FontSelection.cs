@@ -32,7 +32,7 @@ public class FontSelection : MonoBehaviour
         fonts.Add(defaultFont);
         _dropdown.Hide();
         string fontsFilePath = PathTarget.Fonts;
-        var temp = Directory.GetFiles(fontsFilePath).Where(o => o.Contains(".ttf") && !o.Contains(".meta")).ToList();
+        var temp = Directory.GetFiles(fontsFilePath).Where(o => (o.ToLower().Contains(".ttf") || o.ToLower().Contains(".otf") )&& !o.Contains(".meta")).ToList();
         List<TMP_FontAsset> tempFonts = new List<TMP_FontAsset>();
         for (var index = 0; index < temp.Count; index++)
         {

@@ -5,9 +5,16 @@ using UnityEngine;
 
 public class Window : MonoBehaviour
 {
-    [SerializeField] private bool ignoreAsCurrentWindow = false;
+    [SerializeField] protected bool ignoreAsCurrentWindow = false;
+    [SerializeField] protected bool openOnStart = false;
     public static Window CurrentWindow;
-    
+
+    private void Start()
+    {
+        if(openOnStart)
+            OpenWindow();
+    }
+
     public virtual void OpenWindow()
     {
         this.gameObject.SetActive(true);

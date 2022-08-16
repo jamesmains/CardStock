@@ -68,7 +68,7 @@ using UnityEngine.Events;
 
     protected virtual void GetFiles()
     {
-        var files = Directory.GetFiles(_currentPath).Where(o => !o.Contains(".meta")).ToList();
+        var files = Directory.GetFiles(_currentPath).Where(o => !o.Contains(".meta")).ToList().OrderBy(c => c.Length).ThenBy(c => c).ToList();
         foreach (var file in files)
         {
             foreach (var fileTypeTarget in fileTypeTargets)
@@ -214,7 +214,7 @@ using UnityEngine.Events;
     
     private void OnApplicationFocus(bool hasFocus)
     {
-        if(hasFocus)
+        if(hasFocus && !ignoreAsCurrentWindow)
         {
             CloseWindow();
             OpenWindow();

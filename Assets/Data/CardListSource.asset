@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d67e0a8dcd7981246b4e36135b396e18, type: 3}
+  m_Name: CardListSource
+  m_EditorClassIdentifier: 
+  windowName: Select directory of exported cards
+  actionButtonName: Set
+  fileObjectPrefab: {fileID: 5076214967148513556, guid: 5f962da9b5ff41f4a89095e7e6d0559f, type: 3}
+  directoryObjectPrefab: {fileID: 5076214967148513556, guid: 582f893df11cfe04997b2a863b92cd2a, type: 3}
+  rootPath: 6
+  showDirectories: 1
+  fileTypeTargets:
+  - fileType: .png
+    fileIcon: {fileID: 21300000, guid: f133fe08817d5a347ae8c6b6bc3ee45f, type: 3}
+  - fileType: .jpg
+    fileIcon: {fileID: 21300000, guid: f133fe08817d5a347ae8c6b6bc3ee45f, type: 3}
+  - fileType: .jpeg
+    fileIcon: {fileID: 21300000, guid: f133fe08817d5a347ae8c6b6bc3ee45f, type: 3}

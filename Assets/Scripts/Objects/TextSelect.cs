@@ -42,21 +42,21 @@ public class TextSelect : SelectableItem
 
         _textEditorBox = GameObject.FindWithTag("TextEditorBox").GetComponent<TMP_InputField>();
         
-        _alignLeft      = GameObject.FindWithTag("TextAlignLeft").GetComponent<Button>();
-        _alignCenter    = GameObject.FindWithTag("TextAlignCenter").GetComponent<Button>();
-        _alignRight     = GameObject.FindWithTag("TextAlignRight").GetComponent<Button>();
-        _alignTop       = GameObject.FindWithTag("TextAlignTop").GetComponent<Button>();
-        _alignMiddle    = GameObject.FindWithTag("TextAlignMiddle").GetComponent<Button>();
-        _alignBottom    = GameObject.FindWithTag("TextAlignBottom").GetComponent<Button>();
+        _buttonsList.Add(_alignLeft = GameObject.FindWithTag("TextAlignLeft").GetComponent<Button>());
+        _buttonsList.Add(_alignCenter = GameObject.FindWithTag("TextAlignCenter").GetComponent<Button>());
+        _buttonsList.Add(_alignRight = GameObject.FindWithTag("TextAlignRight").GetComponent<Button>());
+        _buttonsList.Add(_alignTop = GameObject.FindWithTag("TextAlignTop").GetComponent<Button>());
+        _buttonsList.Add(_alignMiddle = GameObject.FindWithTag("TextAlignMiddle").GetComponent<Button>());
+        _buttonsList.Add(_alignBottom = GameObject.FindWithTag("TextAlignBottom").GetComponent<Button>());
+        _buttonsList.Add(_styleBold = GameObject.FindWithTag("TextBold").GetComponent<Button>());
+        _buttonsList.Add(_styleItalics = GameObject.FindWithTag("TextItalics").GetComponent<Button>());
+        _buttonsList.Add(_styleUnderline = GameObject.FindWithTag("TextUnderline").GetComponent<Button>());
         
-        _styleBold      = GameObject.FindWithTag("TextBold").GetComponent<Button>();
-        _styleItalics   = GameObject.FindWithTag("TextItalics").GetComponent<Button>();
-        _styleUnderline = GameObject.FindWithTag("TextUnderline").GetComponent<Button>();
-        _dropdown       = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>();
-        _fontSelection  = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>().GetComponent<FontSelection>();
-        _setFontSizeInput   = GameObject.FindWithTag("TextFontSize").GetComponent<TMP_InputField>();
-        _windowMover        = GameObject.FindWithTag("TextProperties").GetComponent<SmoothMoves>();
-        _text               = GetComponent<TextMeshProUGUI>();
+        _dropdown = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>();
+        _fontSelection = GameObject.FindWithTag("TextFont").GetComponent<TMP_Dropdown>().GetComponent<FontSelection>();
+        _setFontSizeInput = GameObject.FindWithTag("TextFontSize").GetComponent<TMP_InputField>();
+        _windowMover = GameObject.FindWithTag("TextProperties").GetComponent<SmoothMoves>();
+        _text = GetComponent<TextMeshProUGUI>();
         _text.fontSizeMax = 300;
         
         _autoSizeToggle = GameObject.FindWithTag("TextAutoSize").GetComponent<Toggle>();
@@ -93,15 +93,6 @@ public class TextSelect : SelectableItem
         _setFontSizeInput.interactable = state;
         _dropdown.interactable = state;
         _textEditorBox.interactable = state;
-        _alignLeft.interactable = state;
-        _alignCenter.interactable = state;
-        _alignRight.interactable = state;
-        _alignTop.interactable = state;
-        _alignMiddle.interactable = state;
-        _alignBottom.interactable = state;
-        _styleBold.interactable = state;
-        _styleItalics.interactable = state;
-        _styleUnderline.interactable = state;
         _autoSizeToggle.interactable = state;
     }
 
@@ -135,21 +126,13 @@ public class TextSelect : SelectableItem
         _posYInput.onSubmit.AddListener(delegate { SetFontSizeDisplay(); });
         _scaleXInput.onSubmit.AddListener(delegate { SetFontSizeDisplay(); });
         _scaleYInput.onSubmit.AddListener(delegate { SetFontSizeDisplay(); });
+        _dropdown.onValueChanged.AddListener(delegate { _fontSelection.ChangeFont();  });
     }
 
     protected override void ClearCallbacks()
     {
         base.ClearCallbacks();
         _textEditorBox.onValueChanged.RemoveAllListeners();
-        _alignLeft.onClick.RemoveAllListeners();
-        _alignCenter.onClick.RemoveAllListeners();
-        _alignRight.onClick.RemoveAllListeners();
-        _alignTop.onClick.RemoveAllListeners();
-        _alignMiddle.onClick.RemoveAllListeners();
-        _alignBottom.onClick.RemoveAllListeners();
-        _styleBold.onClick.RemoveAllListeners();
-        _styleItalics.onClick.RemoveAllListeners();
-        _styleUnderline.onClick.RemoveAllListeners();
         _autoSizeToggle.onValueChanged.RemoveAllListeners();
         _setFontSizeInput.onValueChanged.RemoveAllListeners();
     }

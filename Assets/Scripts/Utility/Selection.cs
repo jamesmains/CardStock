@@ -16,10 +16,18 @@ namespace JimJam.Interface
             _rect = GetComponent<RectTransform>();
         }
 
-        public void HighlightArea(Vector2 size, Vector2 pos)
+        public void HighlightArea(Vector2 size, Vector2 pos, float rot)
         {
-            _rect.sizeDelta = size + padding;
+            Vector2 newSize = size + padding;
+            if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape)
+                newSize *= .7f;
+            _rect.sizeDelta = newSize;
             _rect.localPosition = pos;
+            var _newRotation = _rect.localRotation.eulerAngles;
+            _newRotation.z = CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape
+                ? rot+270
+                : rot;
+            _rect.localRotation = Quaternion.Euler(_newRotation);
         }
 
         public void Reset()

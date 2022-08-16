@@ -18,7 +18,10 @@ public class PagePlannerController : MonoBehaviour
     [Header("Text Displays")]
     [SerializeField] private TextMeshProUGUI pageCountDisplay;
     [SerializeField] private TextMeshProUGUI cardCountDisplay;
-
+    [Header("Windows")]
+    [SerializeField] private FileActionWindow fileActionWindow;
+    [SerializeField] private FileSelectionProfile cardExportSourceProfile;
+    [SerializeField] private FileSelectionProfile cardExportDestinationProfile;
     [Header("Buttons")]
     [SerializeField] private Button prevPageButton;
     [SerializeField] private Button nextPageButton;
@@ -289,7 +292,30 @@ public class PagePlannerController : MonoBehaviour
         return null;                                                    // Return null if load failed
     }
 
+    public void OpenExportSource()
+    {
+        Action[] saveAsActions = new Action[2];
+        saveAsActions[0] = delegate { SetCardListPath(fileActionWindow.CurrentPath); };
+        saveAsActions[1] = delegate { fileActionWindow.CloseWindow(); };
+        fileActionWindow.SetupActions(saveAsActions,saveAsActions);
+        fileActionWindow.OpenWindow(cardExportSourceProfile);
+    }
     
+    public void OpenLoadCardWindow()
+    {
+        // Action[] loadCardActions = new Action[2];
+        // loadCardActions[0] = delegate { LoadCard(FileListObject.SelectedFileListObject.filePath); };
+        // loadCardActions[1] = delegate { fileActionWindow.CloseWindow(); };
+        // fileActionWindow.SetupActions(loadCardActions,loadCardActions);
+        // fileActionWindow.OpenWindow(cardLoadProfile);
+    }
+
+    private void SetCardListPath(string filePath)
+    {
+        if (!Directory.Exists(filePath)) return;
+        PathTarget.PagePlannerCardListPath = filePath;
+        RefreshCardList();
+    }
 }
 
 [Serializable]

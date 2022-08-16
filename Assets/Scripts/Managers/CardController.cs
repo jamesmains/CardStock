@@ -372,6 +372,7 @@ public class CardController : MonoBehaviour
         SelectableItem.SelectedItem?.DeselectItem();
         ClearElements();
         ClearLayerItems();
+        ClearTemplate();
         cardNameInput.text = "";
         recentlySaved = true;
     }

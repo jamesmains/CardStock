@@ -38,11 +38,25 @@ TagManager:
   - TextUnderline
   - TextItalics
   - ObjectExpose
+  - CardSprite
+  - SetPosY
+  - TextProperties
+  - TextAlignBottom
+  - SetRotation
+  - ImageProperties
+  - SetTag
+  - TextAlignTop
+  - FontContainer
+  - PasteElement
+  - SetPosX
+  - CopyElement
+  - ObjectName
+  - TextAlignMiddle
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - NonExportable
   - Water
   - UI
   - UI_Card

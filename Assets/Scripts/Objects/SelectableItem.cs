@@ -33,9 +33,9 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     private bool _tempRotationLock = false;
 
     // Data
-    private bool _isFlippedX;
-    private bool _isFlippedY;
-    private bool _isLocked;
+    [SerializeField] private bool _isFlippedX;
+    [SerializeField] private bool _isFlippedY;
+    [SerializeField] private bool _isLocked;
     private int _rotation;
     public int Tag;
     public string FilePath;
@@ -48,6 +48,11 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     public UnityEvent onSelect;
     public UnityEvent onNameChange;
     public UnityEvent onDelete;
+    
+    // Collections
+    protected List<TMP_InputField> _inputsList = new List<TMP_InputField>();
+    protected List<Button> _buttonsList = new List<Button>();
+    protected List<Toggle> _togglesList = new List<Toggle>();
     
     public static SelectableItem SelectedItem;
     public static SelectableItem CopyItem;
@@ -64,32 +69,37 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         _rect.transform.localRotation = CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape
             ? Quaternion.Euler(0, 0, 270)
             : Quaternion.Euler(Vector3.zero);
-        
+        var rot = _rect.localRotation.eulerAngles;
+        _rotation = (int) rot.z;
+
         _resetScale             = _rect.sizeDelta;
         _resetPosition          = _rect.anchoredPosition;
         
-        // _rotationSlider         = GameObject.FindWithTag("ElementRotationSlider").GetComponent<Slider>();
-        _rotationInput         = GameObject.FindWithTag("SetRotation").GetComponent<TMP_InputField>();
-        _scaleXInput            = GameObject.FindWithTag("SetScaleX").GetComponent<TMP_InputField>();
-        _scaleYInput            = GameObject.FindWithTag("SetScaleY").GetComponent<TMP_InputField>();
-        _posXInput              = GameObject.FindWithTag("SetPosX").GetComponent<TMP_InputField>();
-        _posYInput              = GameObject.FindWithTag("SetPosY").GetComponent<TMP_InputField>();
-        _objectNameInput        = GameObject.FindWithTag("ObjectName").GetComponent<TMP_InputField>();
-        _objectTag              = GameObject.FindWithTag("SetTag").GetComponent<TMP_InputField>();
-        _resetScaleButton       = GameObject.FindWithTag("ResetScale").GetComponent<Button>();
-        _resetPositionButton    = GameObject.FindWithTag("ResetPosition").GetComponent<Button>();
-        _delete                 = GameObject.FindWithTag("DeleteElement").GetComponent<Button>();
-        _centerX                = GameObject.FindWithTag("CenterX").GetComponent<Button>();
-        _centerY                = GameObject.FindWithTag("CenterY").GetComponent<Button>();
-        _stretchX               = GameObject.FindWithTag("StretchX").GetComponent<Button>();
-        _stretchY               = GameObject.FindWithTag("StretchY").GetComponent<Button>();
-        _stretchFill            = GameObject.FindWithTag("StretchFill").GetComponent<Button>();
-        _copy                   = GameObject.FindWithTag("CopyElement").GetComponent<Button>();
-        _paste                  = GameObject.FindWithTag("PasteElement").GetComponent<Button>();
-        _flipX                  = GameObject.FindWithTag("ImageFlipX").GetComponent<Toggle>();
-        _flipY                  = GameObject.FindWithTag("ImageFlipY").GetComponent<Toggle>();
-        _lock                   = GameObject.FindWithTag("ObjectLock").GetComponent<Toggle>();
-        _expose                 = GameObject.FindWithTag("ObjectExpose").GetComponent<Toggle>();
+        _inputsList.Clear();
+        _buttonsList.Clear();
+        _togglesList.Clear();
+
+        _inputsList.Add(_rotationInput = GameObject.FindWithTag("SetRotation").GetComponent<TMP_InputField>());
+        _inputsList.Add(_scaleXInput = GameObject.FindWithTag("SetScaleX").GetComponent<TMP_InputField>());
+        _inputsList.Add(_scaleYInput = GameObject.FindWithTag("SetScaleY").GetComponent<TMP_InputField>());
+        _inputsList.Add(_posXInput = GameObject.FindWithTag("SetPosX").GetComponent<TMP_InputField>());
+        _inputsList.Add(_posYInput = GameObject.FindWithTag("SetPosY").GetComponent<TMP_InputField>());
+        _inputsList.Add(_objectNameInput = GameObject.FindWithTag("ObjectName").GetComponent<TMP_InputField>());
+        _inputsList.Add(_objectTag = GameObject.FindWithTag("SetTag").GetComponent<TMP_InputField>());
+        _buttonsList.Add(_resetScaleButton = GameObject.FindWithTag("ResetScale").GetComponent<Button>());
+        _buttonsList.Add(_resetPositionButton = GameObject.FindWithTag("ResetPosition").GetComponent<Button>());
+        _buttonsList.Add(_delete = GameObject.FindWithTag("DeleteElement").GetComponent<Button>());
+        _buttonsList.Add(_centerX = GameObject.FindWithTag("CenterX").GetComponent<Button>());
+        _buttonsList.Add(_centerY = GameObject.FindWithTag("CenterY").GetComponent<Button>());
+        _buttonsList.Add(_stretchX = GameObject.FindWithTag("StretchX").GetComponent<Button>());
+        _buttonsList.Add(_stretchY = GameObject.FindWithTag("StretchY").GetComponent<Button>());
+        _buttonsList.Add(_stretchFill = GameObject.FindWithTag("StretchFill").GetComponent<Button>());
+        _buttonsList.Add(_copy = GameObject.FindWithTag("CopyElement").GetComponent<Button>());
+        _buttonsList.Add(_paste = GameObject.FindWithTag("PasteElement").GetComponent<Button>());
+        _togglesList.Add(_flipX = GameObject.FindWithTag("ImageFlipX").GetComponent<Toggle>());
+        _togglesList.Add(_flipY = GameObject.FindWithTag("ImageFlipY").GetComponent<Toggle>());
+        _togglesList.Add(_lock = GameObject.FindWithTag("ObjectLock").GetComponent<Toggle>());
+        _togglesList.Add(_expose = GameObject.FindWithTag("ObjectExpose").GetComponent<Toggle>());
         
         _selectionBox           = FindObjectOfType<Selection>();
         _colorPicker            = GameObject.FindWithTag("ColorPicker").GetComponent<ColorPicker>();
@@ -114,6 +124,11 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
             CheckBounds();
     }
 
+    private T FindComponent<T>(string tag, T type)
+    {
+        return GameObject.FindWithTag(tag).GetComponent<T>();
+    }
+    
     private void GetBounds()
     {
         var sizeDelta = _parentRect.sizeDelta;
@@ -130,7 +145,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     protected virtual void SetRotation()
     {
         _tempRotationLock = true;
-        _rotationInput.text = _rect.rotation.eulerAngles.z.ToString();
+        _rotationInput.text = _rect.localRotation.eulerAngles.z.ToString();
         _tempRotationLock = false;
     }
 
@@ -145,7 +160,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
             (localPosition.y, localPosition.x) = (localPosition.x, -localPosition.y);
             localPosition *= 0.7f;
         }
-        _selectionBox.HighlightArea(_rect.sizeDelta,localPosition);
+        _selectionBox.HighlightArea(_rect.sizeDelta,localPosition, _rotation);
     }
 
     protected virtual void AssignCallbacks()
@@ -192,27 +207,12 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
 
     protected virtual void ClearCallbacks()
     {
-        _rotationInput.onValueChanged.RemoveAllListeners();
-        _scaleXInput.onValueChanged.RemoveAllListeners();
-        _scaleYInput.onValueChanged.RemoveAllListeners();
-        _posXInput.onValueChanged.RemoveAllListeners();
-        _posYInput.onValueChanged.RemoveAllListeners();
-        _objectNameInput.onValueChanged.RemoveAllListeners();
-        _objectTag.onValueChanged.RemoveAllListeners();
-        _resetScaleButton.onClick.RemoveAllListeners();
-        _resetPositionButton.onClick.RemoveAllListeners();
-        _flipX.onValueChanged.RemoveAllListeners();
-        _flipY.onValueChanged.RemoveAllListeners();
-        _lock.onValueChanged.RemoveAllListeners();
-        _expose.onValueChanged.RemoveAllListeners();
-        _delete.onClick.RemoveAllListeners();
-        _centerX.onClick.RemoveAllListeners();
-        _centerY.onClick.RemoveAllListeners();
-        _stretchX.onClick.RemoveAllListeners();
-        _stretchY.onClick.RemoveAllListeners();
-        _stretchFill.onClick.RemoveAllListeners();
-        _copy.onClick.RemoveAllListeners();
-        _paste.onClick.RemoveAllListeners();
+        foreach (var c in _inputsList)
+            c.onValueChanged.RemoveAllListeners();
+        foreach (var c in _buttonsList)
+            c.onClick.RemoveAllListeners();
+        foreach (var c in _togglesList)
+            c.onValueChanged.RemoveAllListeners();
     }
 
     public virtual Element SaveElement()
@@ -272,6 +272,7 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         AssignCallbacks();
         GetBounds();
         onSelectGlobal?.Invoke();
+        UpdateInfoBox();
     }
 
     public virtual void DeselectItem()
@@ -279,6 +280,8 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         if (SelectedItem == null) return;
         SelectedItem.ToggleControls(false);
         SelectedItem = null;
+        ClearCallbacks();
+        ClearInfoBox();
         _selectionBox.Reset();
         onDeselectGlobal?.Invoke();
     }
@@ -335,17 +338,43 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
 
     private void Stretch(int fill)
     {
-        if (fill == 0)
-            ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
-        else if (fill == 1)
-            ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
-        else if (fill == 2)
+        if (fill == 0) // Horizontal
         {
-            ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
-            ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
+            if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.portrait)
+            {
+                ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
+            } else
+                ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
+                
+            
         }
-        _scaleXInput.text = _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture);
-        _scaleYInput.text = _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
+        else if (fill == 1) // Vertical
+        {
+            if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.portrait)
+            {
+                ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
+            } else
+                ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
+        }
+        else if (fill == 2) // Fill
+        {
+            if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.portrait)
+            {
+                ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
+                ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
+            }
+            else
+            {
+                ScaleX(_parentRect.sizeDelta.x.ToString(CultureInfo.CurrentCulture));
+                ScaleY(_parentRect.sizeDelta.y.ToString(CultureInfo.CurrentCulture));
+            }
+        }
+        _scaleXInput.text = CardController.instance.DisplayMode == CardController.CardDisplayTypes.portrait ? 
+            _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture):
+            _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture);
+        _scaleYInput.text = CardController.instance.DisplayMode == CardController.CardDisplayTypes.portrait ? 
+            _rect.sizeDelta.y.ToString(CultureInfo.CurrentCulture):
+            _rect.sizeDelta.x.ToString(CultureInfo.CurrentCulture);
         
         CardController.instance.recentlySaved = false;
         UpdateInfoBox();
@@ -358,7 +387,11 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         if (!valid) return;
         if (SelectedItem != this) return;
         var scale = _rect.sizeDelta;
-        scale.x = s;
+        if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape)
+        {
+            scale.y = s;
+        } else
+            scale.x = s;
         _rect.sizeDelta = scale;
         GetBounds();
         CardController.instance.recentlySaved = false;
@@ -372,7 +405,11 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         if (!valid) return;
         if (SelectedItem != this) return;
         var scale = _rect.sizeDelta;
-        scale.y = s;
+        if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape)
+        {
+            scale.x = s;
+        } else
+            scale.y = s;
         _rect.sizeDelta = scale;
         GetBounds();
         CardController.instance.recentlySaved = false;
@@ -413,9 +450,17 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
     {
         var pos = _rect.anchoredPosition;
         if (alignment == 0)
-            pos.x = 0;
+            if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape)
+            {
+                pos.y = 0;
+            } else
+                pos.x = 0;
         else if (alignment == 1)
-            pos.y = 0;
+            if (CardController.instance.DisplayMode == CardController.CardDisplayTypes.landscape)
+            {
+                pos.x = 0;
+            } else
+                pos.y = 0;
         _rect.anchoredPosition = pos;
         CardController.instance.recentlySaved = false;
         UpdateInfoBox();
@@ -510,50 +555,32 @@ public class SelectableItem : MonoBehaviour, IPointerDownHandler
         UpdateInfoBox();
     }
 
-    private void UpdateRotation()
-    {
-        _tempRotationLock = true;
-        _rotationInput.text = _rect.localRotation.z.ToString();
-        _tempRotationLock = false;
-    }
-
     private void ClearInfoBox()
     {
-        _objectTag.text = _posXInput.text = _posYInput.text = _scaleXInput.text = _scaleYInput.text = "";
+        _objectTag.text = _posXInput.text = _posYInput.text = _scaleXInput.text = _scaleYInput.text = _rotationInput.text = "";
+        _flipX.isOn     = false;
+        _flipY.isOn     = false;
+        _lock.isOn      = false;
+        _expose.isOn    = false;
     }
     
     private void UpdateInfoBox()
     {
         //_objectInfoDisplay.text = $"Position:\n{_rect.anchoredPosition.ToString("0.0")}\nScale:\n{_rect.sizeDelta.ToString("0.0")}";
+        _flipX.isOn     = _isFlippedX;
+        _flipY.isOn     = _isFlippedY;
+        _lock.isOn      = _isLocked;
+        _expose.isOn    = isExposed;
     }
 
     protected virtual void ToggleControls(bool state)
     {
-        _rotationInput.interactable = state;
-        _scaleXInput.interactable = state; 
-        _scaleYInput.interactable = state;
-        _posXInput.interactable = state;
-        _posYInput.interactable = state;
-        _objectNameInput.interactable = state;
-        _objectTag.interactable = state;
-        _resetScaleButton.interactable = state;
-        _resetPositionButton.interactable = state;
-        _flipX.interactable = state;
-        _flipY.interactable = state;
-        _lock.interactable = state;
-        _expose.interactable = state;
-        _delete.interactable = state;
-        _centerX.interactable = state; 
-        _centerY.interactable = state;
-        _stretchX.interactable = state;
-        _stretchY.interactable = state;
-        _stretchFill.interactable = state;
-        _copy.interactable = state;
-        _paste.interactable = state;
-        
-        if(state)
-            UpdateInfoBox();
-        else ClearInfoBox();
+        foreach (var c in _inputsList)
+            c.interactable = state;
+        foreach (var c in _buttonsList)
+            c.interactable = state;
+        foreach (var c in _togglesList)
+            c.interactable = state;
     }
     
     public void OnPointerDown(PointerEventData eventData)
