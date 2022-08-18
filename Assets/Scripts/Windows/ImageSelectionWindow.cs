@@ -11,14 +11,13 @@ using UnityEngine.UI;
 public class ImageSelectionWindow : FileExplorerWindow
 {
     [SerializeField] private GameObject imageFolderPrefab;
-    
-    private List<string> _paths = new List<string>();
-    private List<Sprite> _sprites = new List<Sprite>();
-    private List<Texture2D> _imageList = new List<Texture2D>();
-    private Dictionary<string, Texture2D> _loadedTextures = new Dictionary<string, Texture2D>();
-    private bool _canLoad = true;
-    private Texture2D _currentTexture;
-    private SmoothMoves _mover;
+
+    [SerializeField] private List<string> _paths = new List<string>();
+    [SerializeField] private List<Sprite> _sprites = new List<Sprite>();
+    [SerializeField] private Dictionary<string, Texture2D> _loadedTextures = new Dictionary<string, Texture2D>();
+    [SerializeField] private bool _canLoad = true;
+    [SerializeField] private Texture2D _currentTexture;
+    [SerializeField] private SmoothMoves _mover;
 
     public void ConfirmImageSelection(FileListObject obj)
     {
@@ -32,32 +31,14 @@ public class ImageSelectionWindow : FileExplorerWindow
     {
         var files = Directory.GetFiles(_currentPath).Where(o => !o.Contains(".meta")).ToList();
         var canDoTask = BatchTaskDisplay.single.SetupTask("Loading Images",0,files.Count);
+        _paths.Clear();
+        _sprites.Clear();
+        _loadedTextures.Clear();
         if (!canDoTask)
         {
             TimedInfoPrompt.single.DisplayTimedPrompt("Busy with task...");
             return;
         }
-        
-        var tempPaths = new List<String>();
-        foreach(var path in _paths)
-            if(!string.IsNullOrEmpty(path))
-                tempPaths.Add(path);
-        _paths = tempPaths;
-        
-        var tempSprites = new List<Sprite>();
-        foreach(var sprite in _sprites)
-            if(sprite!=null)
-                tempSprites.Add(sprite);
-        _sprites = tempSprites;
-        
-        var tempDictionary = new Dictionary<string, Texture2D>();
-        foreach (var keypair in _loadedTextures)
-        {
-            if(keypair.Value!=null)
-                tempDictionary.Add(keypair.Key,keypair.Value);
-        }
-        
-        _loadedTextures = tempDictionary;
         
         if(!_canLoad)
             StopAllCoroutines();

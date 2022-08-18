@@ -15,7 +15,7 @@ public class TextSelect : SelectableItem
     private TMP_InputField _textEditorBox, _setFontSizeInput;
     private TMP_Dropdown _dropdown;
     private FontSelection _fontSelection;
-    private Toggle _autoSizeToggle;
+    // private Toggle _autoSizeToggle;
     private TextMeshProUGUI _text;
     private SmoothMoves _windowMover; //unused
 
@@ -59,7 +59,7 @@ public class TextSelect : SelectableItem
         _text = GetComponent<TextMeshProUGUI>();
         _text.fontSizeMax = 300;
         
-        _autoSizeToggle = GameObject.FindWithTag("TextAutoSize").GetComponent<Toggle>();
+        // _autoSizeToggle = GameObject.FindWithTag("TextAutoSize").GetComponent<Toggle>();
         
         ChangeText("New Text");
     }
@@ -77,6 +77,7 @@ public class TextSelect : SelectableItem
         _textEditorBox.text = _baseText;
         _fontSelection.Init(_text.font);
         _setFontSizeInput.text = _text.fontSize.ToString(CultureInfo.CurrentCulture);
+        ToggleAutoSize(_autoSize);
     }
     
     public override void DeselectItem()
@@ -93,14 +94,14 @@ public class TextSelect : SelectableItem
         _setFontSizeInput.interactable = state;
         _dropdown.interactable = state;
         _textEditorBox.interactable = state;
-        _autoSizeToggle.interactable = state;
+        // _autoSizeToggle.interactable = state;
     }
 
     protected override void AssignCallbacks()
     {
          base.AssignCallbacks();
 
-         _autoSizeToggle.isOn = _autoSize;
+         // _autoSizeToggle.isOn = _autoSize;
          
         _textEditorBox.onValueChanged.AddListener(ChangeText);
         _alignLeft.onClick.AddListener(delegate { ChangeTextAlignmentHorizontal(TextAlignmentOptions.Left); });
@@ -115,7 +116,7 @@ public class TextSelect : SelectableItem
         _styleUnderline.onClick.AddListener(delegate{ToggleStyle(ref _isUnderlined);});
 
         _setFontSizeInput.onValueChanged.AddListener(delegate { ChangeFontSize(_setFontSizeInput.text); });
-        _autoSizeToggle.onValueChanged.AddListener(delegate { ToggleAutoSize(_autoSizeToggle.isOn); });
+        // _autoSizeToggle.onValueChanged.AddListener(delegate { ToggleAutoSize(_autoSizeToggle.isOn); });
         
         _resetScaleButton.onClick.AddListener(SetFontSizeDisplay);
         _resetPositionButton.onClick.AddListener(SetFontSizeDisplay);
@@ -133,7 +134,7 @@ public class TextSelect : SelectableItem
     {
         base.ClearCallbacks();
         _textEditorBox.onValueChanged.RemoveAllListeners();
-        _autoSizeToggle.onValueChanged.RemoveAllListeners();
+        // _autoSizeToggle.onValueChanged.RemoveAllListeners();
         _setFontSizeInput.onValueChanged.RemoveAllListeners();
     }
     
@@ -267,6 +268,7 @@ public class TextSelect : SelectableItem
 
     private void ToggleAutoSize(bool state)
     {
+        // if (SelectableItem.SelectedItem != this) return;
         _autoSize = state;
         _text.enableAutoSizing = state;
     }

@@ -163,7 +163,7 @@ public class PagePlannerController : MonoBehaviour
             ? PathTarget.Exports
             : PathTarget.PagePlannerCardListPath;
         
-        var files = Directory.GetFiles(path).Where(o => !o.Contains(".meta")).ToList();
+        var files = Directory.GetFiles(path).Where(o => !o.Contains(".meta")).ToList().OrderBy(c => c.Length).ThenBy(c => c).ToList();
         var canDoTask = BatchTaskDisplay.single.SetupTask("Loading cards",0,files.Count);
         
         if (!canDoTask)

@@ -107,6 +107,7 @@ public class TSVSheetController : MonoBehaviour
             BatchTaskDisplay.single.Tick();
         }
         BatchTaskDisplay.single.EndTask(1f,"Finished!");
+        // CardController.instance.ConfirmClearCard();
         CardController.instance.TurnOffMessages(false);
     }
 

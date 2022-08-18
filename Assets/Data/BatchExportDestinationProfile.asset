@@ -20,8 +20,8 @@ MonoBehaviour:
   showDirectories: 1
   fileTypeTargets:
   - fileType: .png
-    fileIcon: {fileID: 21300000, guid: f133fe08817d5a347ae8c6b6bc3ee45f, type: 3}
+    fileIcon: {fileID: 21300000, guid: a9f88f1126c8ae649a5304e76fa2f5d5, type: 3}
   - fileType: .jpg
-    fileIcon: {fileID: 21300000, guid: f133fe08817d5a347ae8c6b6bc3ee45f, type: 3}
+    fileIcon: {fileID: 21300000, guid: a9f88f1126c8ae649a5304e76fa2f5d5, type: 3}
   - fileType: .jpeg
-    fileIcon: {fileID: 21300000, guid: f133fe08817d5a347ae8c6b6bc3ee45f, type: 3}
+    fileIcon: {fileID: 21300000, guid: a9f88f1126c8ae649a5304e76fa2f5d5, type: 3}

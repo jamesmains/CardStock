@@ -20,4 +20,4 @@ MonoBehaviour:
   showDirectories: 1
   fileTypeTargets:
   - fileType: .card
-    fileIcon: {fileID: 21300000, guid: 8839578053b110f47b871fddc8dd9b95, type: 3}
+    fileIcon: {fileID: 21300000, guid: 47b32f2520618064f9e6443cf0e3c786, type: 3}

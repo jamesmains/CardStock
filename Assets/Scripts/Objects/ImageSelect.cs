@@ -101,6 +101,7 @@ public class ImageSelect : SelectableItem
 
     public void ChangeFilePath(string newPath)
     {
+        print(newPath);
         imageFilePath = newPath;
         //if (imageFilePath != String.Empty)
         //    _image.sprite = LoadNewSprite(imageFilePath);

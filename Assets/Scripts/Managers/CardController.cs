@@ -53,6 +53,7 @@ public class CardController : MonoBehaviour
     public CardDisplayTypes DisplayMode => _displayMode;
     private CardDisplayTypes _displayMode;
     private TSVSheetController _tsvSheetController;
+    private Action onFinishSave = null;
     
     [HideInInspector]
     public List<SelectableItem> cardElements;
@@ -203,9 +204,12 @@ public class CardController : MonoBehaviour
     {
         if (String.IsNullOrEmpty(PathTarget.LoadedCardPath)) return;
         if (!File.Exists(PathTarget.LoadedCardPath)) return;
-        if(save)
+        if (save)
+        {
+            onFinishSave = null;
+            onFinishSave = delegate { LoadCard(PathTarget.LoadedCardPath); };
             TrySaveCard();
-        LoadCard(PathTarget.LoadedCardPath);
+        }
     }
     
     public void LoadCard(string filePath)
@@ -333,7 +337,7 @@ public class CardController : MonoBehaviour
             InputPromptWindow.Instance.SetupInputPromptWindow("Save Card",actions);
             return;
         }
-        
+        print($"Save path {PathTarget.CardSavePath}");
         var validPath = VerifyFilePath(ref PathTarget.CardSavePath,"SavePath",PathTarget.Cards,"Save Path: ");
         var cardPath = PathTarget.CardSavePath + "\\" + cardNameInput.text + ".card";
         if (validPath == false || (!File.Exists(cardPath) || doSaveAs))
@@ -360,6 +364,8 @@ public class CardController : MonoBehaviour
         recentlySaved = true;
         if(!_skipMessages)
             TimedInfoPrompt.single.DisplayTimedPrompt($"Saved {cardNameInput.text}");
+        
+        onFinishSave?.Invoke();
     }
 
     public void ClearCard()
@@ -503,6 +509,8 @@ public class CardController : MonoBehaviour
 
     public void SetExportPath(string newPath)
     {
+        // Debug.LogError(newPath);
+        newPath = !Directory.Exists(newPath) ? PathTarget.Exports : newPath;
         PathTarget.CardExportPath = newPath;
         VerifyFilePath(ref PathTarget.CardExportPath,"ExportPath",PathTarget.Exports,"Export Path: ");
     }
