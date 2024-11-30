@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+// TODO: inspect use case for this
+
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class TextDisplay : MonoBehaviour
 {

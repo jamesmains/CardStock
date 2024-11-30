@@ -99,10 +99,10 @@ public class BoardGrid : MonoBehaviour
     {
         if (string.IsNullOrEmpty(boardName.text))
         {
-            WarningMessageBox.Instance.DisplayWarning("Board name cannot be empty!");
+            Prompt.Singleton.DisplayWarning("Board name cannot be empty!");
             return;
         }
-        ScreenshotHandler.TakeScreenshot_Static(boardName.text,PathTarget.Boards);
+        ScreenshotHandler.TakeScreenshot_Static(boardName.text,PathTargeting.BoardsPath);
     }
     
     private void SpawnTile(GameObject tile, Vector2 scale, Vector2 pos)

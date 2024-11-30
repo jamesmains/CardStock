@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+// TODO - bundle with some bootstrapper unless one doesn't come up
+
 public class CardStockHeader : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI appVersionDisplay;

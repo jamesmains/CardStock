@@ -17,7 +17,7 @@ using UnityEngine.Events;
     [SerializeField] protected Transform listContainer;
 
     [Header("Targeting")]
-    [SerializeField] private PathTarget.PathTargets rootPath;
+    [SerializeField] private PathTargeting.PathTargets rootPath;
     [SerializeField] protected bool showDirectories;
     [SerializeField] protected FileExplorerTarget[] fileTypeTargets;
     protected string _rootPath;
@@ -30,14 +30,15 @@ using UnityEngine.Events;
     {
         base.OnEnable();
         _currentPathDisplay = GetComponentInChildren<TMP_InputField>();
-        _rootPath = PathTarget.GetPath((int)rootPath);
-        PathTarget.CheckPath(_rootPath);
+        _rootPath = PathTargeting.GetPath((int)rootPath);
+        PathTargeting.CheckPath(_rootPath);
         ResetList();
     }
 
     private void ResetList()
     {
-        _rootPath = _rootPath.Replace('/', '\\');
+        // if(Application.platform == RuntimePlatform.WindowsPlayer)
+        //     _rootPath = _rootPath.Replace('/', '\\');
         _rootPath = _rootPath.Remove(_rootPath.Length-1);
         _currentPath = string.IsNullOrEmpty(_currentPath) ? _rootPath : _currentPath;
         RefreshList();
@@ -47,10 +48,9 @@ using UnityEngine.Events;
     {
         if(_currentPathDisplay!=null)
             _currentPathDisplay.text = _currentPath;
-        
-        for (int i = 0; i < listContainer.childCount; i++)
-        {
-            Destroy(listContainer.GetChild(i).gameObject);
+
+        foreach (GameObject child in listContainer.transform) {
+            child.SetActive(false);
         }
         if (_currentPath != _rootPath)
         {
@@ -145,7 +145,7 @@ using UnityEngine.Events;
     public virtual void DeleteSelected()
     {
         if (FileListObject.SelectedFileListObject == null) return;
-        WarningMessageBox.Instance.DisplayWarning("Are you sure you want to delete this?",ConfirmDeleteSelection);
+        Prompt.Singleton.DisplayWarning("Are you sure you want to delete this?",ConfirmDeleteSelection);
     }
 
     public virtual void ConfirmDeleteSelection()
@@ -163,19 +163,20 @@ using UnityEngine.Events;
     {
         // Custom solution
         Action[] actions = new Action[1];
-        actions[0] = delegate { ConfirmCreateFolder(InputPromptWindow.Instance.GetInputText()); };
-        InputPromptWindow.Instance.OpenWindow();
-        InputPromptWindow.Instance.SetupInputPromptWindow("New Folder",actions);
+        // Todo: add prompt for Creating Folder
+        // actions[0] = delegate { ConfirmCreateFolder(InputPromptWindow.Instance.GetInputText()); };
+        // InputPromptWindow.Instance.OpenWindow();
+        // InputPromptWindow.Instance.SetupInputPromptWindow("New Folder",actions);
     }
 
     private void ConfirmCreateFolder(string fileName)
     {
         if (string.IsNullOrEmpty(fileName))
         {
-            WarningMessageBox.Instance.DisplayWarning("Please enter name for new directory...");
+            Prompt.Singleton.DisplayWarning("Please enter name for new directory...");
             return;
         }
-        Directory.CreateDirectory(_currentPath +"\\"+ fileName);
+        Directory.CreateDirectory(_currentPath +"/"+ fileName);
         RefreshList();
     }
     

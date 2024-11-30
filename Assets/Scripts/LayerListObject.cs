@@ -1,53 +1,44 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class LayerListObject : FileListObject
 {
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private Button layerUpButton, layerDownButton;
-    private SelectableItem _parentSelectableObject;
+    private CardElement AssociatedCardElement;
     private string _lastKnownName;
-    private CardController _cardController;
     
     public static LayerListObject SelectedLayerListObject;
-    public void Setup(SelectableItem parent)
-    {
-        _parentSelectableObject = parent;
-        _cardController = FindObjectOfType<CardController>();
+    public void Setup(CardElement parent) {
+        AssociatedCardElement = parent;
         Action[] actions = new Action[1];
-        actions[0] = delegate { _parentSelectableObject.SelectItem(); };
-        base.Setup(parent.GetName(),actions);
-        nameDisplay.text = parent.GetName();
+        actions[0] = delegate { CardElement.OnSelectElement.Invoke(AssociatedCardElement); };
+        base.Setup(parent.UnSavedData.Name,actions);
+        nameDisplay.text = parent.UnSavedData.Name;
         layerUpButton.onClick.RemoveAllListeners();
         layerDownButton.onClick.RemoveAllListeners();
-        layerUpButton.onClick.AddListener(delegate { _parentSelectableObject.ChangeLayer(1); });
+        layerUpButton.onClick.AddListener(delegate { AssociatedCardElement.SetLayer(1); });
         layerUpButton.onClick.AddListener(Refresh);
-        layerDownButton.onClick.AddListener(delegate { _parentSelectableObject.ChangeLayer(-1); });
+        layerDownButton.onClick.AddListener(delegate { AssociatedCardElement.SetLayer(-1); });
         layerDownButton.onClick.AddListener(Refresh);
-        _parentSelectableObject.onSelect.AddListener(Select);
-        _parentSelectableObject.onNameChange.AddListener(Refresh);
-        _parentSelectableObject.onDelete.AddListener(Delete);
     }
 
     public void Refresh()
     {
-        nameDisplay.text = _parentSelectableObject.GetName();
-        this.transform.SetSiblingIndex(_parentSelectableObject.transform.GetSiblingIndex());
+        nameDisplay.text = AssociatedCardElement.UnSavedData.Name;
+        this.transform.SetSiblingIndex(AssociatedCardElement.transform.GetSiblingIndex());
     }
 
     private void Delete()
     {
-        Destroy(this.gameObject);
+        gameObject.SetActive(false);
     }
 
     public bool IsExposed()
     {
-        return _parentSelectableObject.isExposed;
+        return AssociatedCardElement.UnSavedData.IsVisible;
     }
     public override void Select()
     {

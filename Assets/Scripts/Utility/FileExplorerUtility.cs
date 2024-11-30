@@ -22,7 +22,7 @@ public class FileExplorerUtility : MonoBehaviour
 
     public void OpenSpecialFolder(int fp)
     {
-        OpenExplorer(PathTarget.GetPath(fp));
+        OpenExplorer(PathTargeting.GetPath(fp));
     }
 
     

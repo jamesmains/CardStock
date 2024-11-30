@@ -14,7 +14,6 @@ public class ColorGrabber : MonoBehaviour
     private void Awake()
     {
         _colorPicker = FindObjectOfType<ColorPicker>();
-        _colorPicker.onColorChanged += UpdateColor;
         _hexInput = GetComponent<TMP_InputField>();
     }
 
@@ -30,12 +29,12 @@ public class ColorGrabber : MonoBehaviour
     
     void UpdateColor(Color c)
     {
-        if (SelectableItem.SelectedItem)
+        // if (CardElement.SelectedItem)
         {
             var s = ColorUtility.ToHtmlStringRGB(c);
             if (!s.Contains("#"))
                 s = s.Insert(0, "#");
-            SelectableItem.SelectedItem.SetColor(s);
+            // CardElement.SelectedItem.SetColor(s);
             _hexInput.text = s;
         }
     }

@@ -23,6 +23,5 @@ public class Draggable : MonoBehaviour, IDragHandler
     {
         _rect.anchoredPosition += eventData.delta / _canvas.scaleFactor;
         onDrag.Invoke();
-        CardController.instance.recentlySaved = false;
     }
 }

@@ -1,6 +1,7 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -36,8 +37,7 @@ public class ColorPicker : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
             ApplyColor();
         }
     }
-
-    public event Action<Color> onColorChanged;
+    public static UnityEvent<string> OnColorChanged = new();
 
     private void Awake()
     {
@@ -142,8 +142,18 @@ public class ColorPicker : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
     private void ApplyColor()
     {
         image.material.SetVector(_HSV, new Vector3(h, s, v));
+        var c = ColorUtility.ToHtmlStringRGB(color);
+            
+        if(c[0] != '#')
+            c = "#" + c;
+        OnColorChanged?.Invoke(c);
+    }
 
-        onColorChanged?.Invoke(color);
+    public void SetColor(string newColor) {
+        // Todo: figure out to inverse this onto the color square to reflect the new position
+        if (ColorUtility.TryParseHtmlString(newColor, out var c)) {
+            OnColorChanged?.Invoke(newColor);
+        }
     }
 
     private void OnDestroy()

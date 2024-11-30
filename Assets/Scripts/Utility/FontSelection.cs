@@ -29,7 +29,7 @@ public class FontSelection : MonoBehaviour
         fonts.Clear();
         fonts.Add(defaultFont);
         _dropdown.Hide();
-        string fontsFilePath = PathTarget.Fonts;
+        string fontsFilePath = PathTargeting.FontsPath;
         var temp = Directory.GetFiles(fontsFilePath).Where(o => o.Contains(".ttf") && !o.Contains(".meta")).ToList();
         List<TMP_FontAsset> tempFonts = new List<TMP_FontAsset>();
         for (var index = 0; index < temp.Count; index++)
@@ -62,10 +62,10 @@ public class FontSelection : MonoBehaviour
     
     public void ChangeFont()
     {
-        if (TextSelect.SelectedText == null) return;
-        var text = TextSelect.SelectedText;
-        
-        text.ChangeFont(fonts[_dropdown.value]);
+        // if (TextSelect.SelectedText == null) return;
+        // var text = TextSelect.SelectedText;
+        //
+        // text.ChangeFont(fonts[_dropdown.value]);
     }
 
     private void OnApplicationFocus(bool hasFocus)

@@ -159,13 +159,13 @@ public class PagePlannerController : MonoBehaviour
     {
         if (_cardSprites.Count == 0)
         {
-            WarningMessageBox.Instance.DisplayWarning("There are no cards on this page!");
+            Prompt.Singleton.DisplayWarning("There are no cards on this page!");
             return;
         }
         
         if (batchNameEditor.text == string.Empty)
         {
-            WarningMessageBox.Instance.DisplayWarning("Please enter batch name!");
+            Prompt.Singleton.DisplayWarning("Please enter batch name!");
             return;
         }
 
@@ -186,7 +186,7 @@ public class PagePlannerController : MonoBehaviour
     {
         if (batchNameEditor.text == string.Empty)
         {
-            WarningMessageBox.Instance.DisplayWarning("Please enter batch name!");
+            Prompt.Singleton.DisplayWarning("Please enter batch name!");
             return;
         }
 

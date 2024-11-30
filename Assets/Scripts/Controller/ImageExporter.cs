@@ -42,7 +42,7 @@ public class ImageExporter : MonoBehaviour
             vertical -= height;
         }
         byte[] byteArray = export.EncodeToPNG();
-        System.IO.File.WriteAllBytes(PathTarget.Pages + $"{fileName}.png", byteArray);
+        System.IO.File.WriteAllBytes(PathTargeting.PagesPath + $"{fileName}.png", byteArray);
     }
     
     public void ExportImage(List<Sprite> sprites, List<Vector2> positions, List<Vector2> scales, string fileName, int width, int height, int compression = 0, int scaleUp = 0)
@@ -94,7 +94,7 @@ public class ImageExporter : MonoBehaviour
             
             
             byte[] byteArray = export.EncodeToPNG();
-            System.IO.File.WriteAllBytes(PathTarget.Pages + $"{fileName}.png", byteArray);
+            System.IO.File.WriteAllBytes(PathTargeting.PagesPath + $"{fileName}.png", byteArray);
         }
     
     Texture2D Resize(Texture2D texture2D,int targetX,int targetY)
