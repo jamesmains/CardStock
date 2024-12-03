@@ -38,6 +38,7 @@ public class ColorPicker : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
         }
     }
     public static UnityEvent<string> OnColorChanged = new();
+    public static UnityEvent<string> OnUpdateColor = new();
 
     private void Awake()
     {
@@ -149,10 +150,15 @@ public class ColorPicker : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
         OnColorChanged?.Invoke(c);
     }
 
-    public void SetColor(string newColor) {
+    public void SetColor(string newColor, bool justUpdate = false) {
         // Todo: figure out to inverse this onto the color square to reflect the new position
+        if (justUpdate) {
+            OnUpdateColor.Invoke(newColor); return;
+            
+        }
         if (ColorUtility.TryParseHtmlString(newColor, out var c)) {
             OnColorChanged?.Invoke(newColor);
+            OnUpdateColor?.Invoke(newColor);
         }
     }
 

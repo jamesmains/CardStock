@@ -172,10 +172,10 @@ MonoBehaviour:
     FontItalicized: 0
     FontUnderlined: 0
     AutoSizeFont: 0
-    TextAlignmentHorizontal: 
-    TextAlignmentVertical: 
+    TextAlignmentHorizontal: 0
+    TextAlignmentVertical: 0
+    FontFamily: 0
     TextContent: 
-    FontFamily: 
     FontSize: 16
     Color: '#ffffff'
     ImageFilePath: 

@@ -26,11 +26,12 @@ public class ElementModifierData : MonoBehaviour
     }
 
     private void HandleElementSelected(CardElement selectedElement) {
-        SelectedCardElement = selectedElement;
+        SelectedCardElement = null;
         if (selectedElement == null) {
             ModifierMenu.Close();
         }
         else {
+            SelectedCardElement = selectedElement;
             ModifierMenu.Open();
             transform.SetSiblingIndex(1);
         }

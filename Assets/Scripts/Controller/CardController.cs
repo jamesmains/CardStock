@@ -86,6 +86,7 @@ public class CardController : MonoBehaviour {
         var element = Pooler.Spawn(type == CardElementType.Image ? ImageElementPrefab : TextElementPrefab, CardContainer,false).GetComponent<CardElement>();
         element.OnCreateElement.Invoke(data, CardElementType.AsIs);
         CardElement.OnBuildElement.Invoke(element);
+        CardElement.OnSelectElement.Invoke(element);
     }
 
     public void PasteObject(ElementData data) {
@@ -112,9 +113,6 @@ public class CardController : MonoBehaviour {
 
         PathTargeting.CurrentCardPath = filePath;
         LoadFullCard(filePath);
-
-        if (LayerListObject.SelectedLayerListObject)
-            LayerListObject.SelectedLayerListObject.Deselect();
     }
 
     private void LoadFullCard(string filePath) {
@@ -202,7 +200,6 @@ public class CardController : MonoBehaviour {
     }
 
     // public void TurnOffMessages(bool state) {
-    //     print(state);
     //     _skipMessages = state;
     // }
 
@@ -220,7 +217,6 @@ public class CardController : MonoBehaviour {
         // TurnOffMessages(true);
         // SetExportPath(_exportPath);
         CardElement.OnSelectElement.Invoke(null);
-        if (LayerListObject.SelectedLayerListObject) LayerListObject.SelectedLayerListObject.Deselect();
         StartCoroutine(BulkExport());
     }
 
@@ -256,7 +252,6 @@ public class CardController : MonoBehaviour {
 
         // SetExportPath(_exportPath);
         CardElement.OnSelectElement.Invoke(null);
-        if (LayerListObject.SelectedLayerListObject) LayerListObject.SelectedLayerListObject.Deselect();
         StartCoroutine(Screenshot());
         // Debug.Log(_exportPath.ToString());
     }

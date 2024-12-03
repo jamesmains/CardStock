@@ -5,6 +5,7 @@ using ParentHouse.UI;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using static LeTai.TrueShadow.Math;
 
@@ -39,14 +40,18 @@ public class ElementModifierTransform : MonoBehaviour {
     [SerializeField] [FoldoutGroup("Status")] [ReadOnly]
     private CardElement SelectedCardElement;
 
+    public static UnityEvent<Vector2> UpdateCardElementPosition = new();
+
     private void OnEnable() {
         CardElement.OnSelectElement.AddListener(HandleElementSelected);
         CardElement.OnBuildElement.AddListener(HandleElementBuild);
+        UpdateCardElementPosition.AddListener(UpdatePositionDisplay);
     }
 
     private void OnDisable() {
         CardElement.OnSelectElement.RemoveListener(HandleElementSelected);
         CardElement.OnBuildElement.RemoveListener(HandleElementBuild);
+        UpdateCardElementPosition.RemoveListener(UpdatePositionDisplay);
     }
 
     private void HandleElementBuild(CardElement cardElement) {
@@ -61,11 +66,12 @@ public class ElementModifierTransform : MonoBehaviour {
     }
 
     private void HandleElementSelected(CardElement selectedElement) {
-        SelectedCardElement = selectedElement;
+        SelectedCardElement = null;
         if (selectedElement == null) {
             ModifierMenu.Close();
         }
         else {
+            SelectedCardElement = selectedElement;
             ModifierMenu.Open();
             transform.SetSiblingIndex(0);
             var pos = new Vector2(SelectedCardElement.UnSavedData.PositionX, SelectedCardElement.UnSavedData.PositionY);

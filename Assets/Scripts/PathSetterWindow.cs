@@ -54,12 +54,12 @@ public class PathSetterWindow : FileExplorerWindow
 
     public void SetTSVSheetPath()
     {
-        print(FileListObject.SelectedFileListObject);
-        if (!File.Exists(FileListObject.SelectedFileListObject?.filePath)) return;
-        var c = FindObjectOfType<TSVSheetController>();
-        c.SetFilePath(FileListObject.SelectedFileListObject.filePath);
-        c.GetData();
-        CloseWindow();
+        print(ListItem.SelectedListItem);
+        // if (!File.Exists(ListItem.SelectedListItem?.filePath)) return;
+        // var c = FindObjectOfType<TSVSheetController>();
+        // c.SetFilePath(ListItem.SelectedListItem.filePath);
+        // c.GetData();
+        // CloseWindow();
     }
     
 }

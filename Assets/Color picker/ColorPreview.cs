@@ -9,11 +9,11 @@ public class ColorPreview : MonoBehaviour {
     public Graphic PreviewGraphic;
 
     private void OnEnable() {
-        ColorPicker.OnColorChanged.AddListener(OnColorChanged);
+        ColorPicker.OnUpdateColor.AddListener(OnColorChanged);
     }
 
     private void OnDisable() {
-        ColorPicker.OnColorChanged.RemoveListener(OnColorChanged);
+        ColorPicker.OnUpdateColor.RemoveListener(OnColorChanged);
     }
 
     private void OnColorChanged(string newColor) {

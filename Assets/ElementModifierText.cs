@@ -12,6 +12,9 @@ using UnityEngine.UI;
 public class ElementModifierText : MonoBehaviour {
     [SerializeField] [FoldoutGroup("Dependencies")]
     private Menu ModifierMenu;
+    
+    [SerializeField] [FoldoutGroup("Dependencies")]
+    private ColorPicker ColorPicker;
 
     [SerializeField] [FoldoutGroup("Dependencies")]
     private TMP_InputField ColorPickerInput;
@@ -59,6 +62,7 @@ public class ElementModifierText : MonoBehaviour {
         CardElement.OnSelectElement.AddListener(HandleElementSelected);
         CardElement.OnBuildElement.AddListener(HandleElementBuild);
         ColorPicker.OnColorChanged.AddListener(ChangeColor);
+        LoadFonts();
         AddControls();
     }
 
@@ -76,10 +80,10 @@ public class ElementModifierText : MonoBehaviour {
     }
 
     private void HandleElementBuild(CardElement cardElement) {
-        //ChangeFont(); // Todo: figure this out (needs to go from string to int)
         if (cardElement == null || cardElement.ElementType != CardElementType.Text) return;
         CardElement.OnSelectElement.Invoke(cardElement);
         ChangeColor(SelectedCardElement.SavedData.Color);
+        ChangeFont(SelectedCardElement.SavedData.FontFamily);
         ChangeText(SelectedCardElement.SavedData.TextContent);
         ChangeTextAlignmentHorizontal(SelectedCardElement.SavedData.TextAlignmentHorizontal);
         ChangeTextAlignmentVertical(SelectedCardElement.SavedData.TextAlignmentVertical);
@@ -89,18 +93,17 @@ public class ElementModifierText : MonoBehaviour {
     }
 
     private void HandleElementSelected(CardElement selectedElement) {
-        SelectedCardElement = selectedElement;
+        SelectedCardElement = null;
         if (selectedElement == null || selectedElement.ElementType != CardElementType.Text) {
             ModifierMenu.Close();
-            SelectedCardElement = null;
         }
         else {
+            SelectedCardElement = selectedElement;
             ContentInputField.SetTextWithoutNotify(selectedElement.UnSavedData.TextContent);
-            LoadFonts();
             UpdateAlignToggles(SelectedCardElement.UnSavedData.TextAlignmentHorizontal,
                 SelectedCardElement.UnSavedData.TextAlignmentVertical);
             HandleTextStyleBuild(SelectedCardElement.UnSavedData);
-            ColorPicker.OnColorChanged.Invoke(SelectedCardElement.UnSavedData.Color);
+            ChangeColor(SelectedCardElement.UnSavedData.Color);
             FontSizeInput.SetTextWithoutNotify(
                 SelectedCardElement.UnSavedData.FontSize.ToString(CultureInfo.InvariantCulture));
             AutoSizeToggle.SetIsOnWithoutNotify(SelectedCardElement.UnSavedData.AutoSizeFont);
@@ -121,10 +124,10 @@ public class ElementModifierText : MonoBehaviour {
         LoadedFonts.Add(DefaultFont);
         FontDropdown.Hide();
         string fontsFilePath = PathTargeting.FontsPath;
-        var temp = Directory.GetFiles(fontsFilePath).Where(o => o.Contains(".ttf") && !o.Contains(".meta")).ToList();
-        for (var index = 0; index < temp.Count; index++) {
-            Font font = new Font(temp[index]);
-            var s = Path.GetFileNameWithoutExtension(temp[index]);
+        var loadedFontPaths = Directory.GetFiles(fontsFilePath).Where(o => o.Contains(".ttf") && !o.Contains(".meta")).ToList();
+        for (var index = 0; index < loadedFontPaths.Count; index++) {
+            Font font = new Font(loadedFontPaths[index]);
+            var s = Path.GetFileNameWithoutExtension(loadedFontPaths[index]);
             s = s.Trim('/');
             var f = TMP_FontAsset.CreateFontAsset(font);
             f.name = s;
@@ -139,6 +142,7 @@ public class ElementModifierText : MonoBehaviour {
     public void ChangeColor(string hexValue) {
         if (SelectedCardElement == null) return;
         SelectedCardElement.SetColor(hexValue);
+        ColorPicker.SetColor(hexValue,true);
         UpdateColorDisplay(hexValue);
     }
 
@@ -220,8 +224,8 @@ public class ElementModifierText : MonoBehaviour {
     }
 
     public void ChangeFont(int fontIndex) {
-        SelectedCardElement.TextMesh.font = LoadedFonts[fontIndex];
-        SelectedCardElement.SetTextFont(FontDropdown.value.ToString());
+        SelectedCardElement.TextMesh.font = LoadedFonts[fontIndex % LoadedFonts.Count];
+        SelectedCardElement.SetTextFont(FontDropdown.value);
     }
 
     public void ChangeFontSize(string size) {
@@ -255,7 +259,7 @@ public class ElementModifierText : MonoBehaviour {
         SelectedCardElement.SetTextAlignment(horizontal, vertical);
     }
 
-    public void UpdateColorDisplay(string newColor) {
+    private void UpdateColorDisplay(string newColor) {
         if (ColorUtility.TryParseHtmlString(newColor, out var c)) {
             ColorPickerInput.SetTextWithoutNotify(newColor);
             TextTintInput.SetTextWithoutNotify(newColor);

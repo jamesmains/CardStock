@@ -1,13 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
 
 public class CardManagementWindow : FileExplorerWindow
 {
     private CardController _cardController;
-    public FileListObject selectedCard;
+    public ListItem selectedCard;
 
     private void Awake()
     {
@@ -16,7 +12,7 @@ public class CardManagementWindow : FileExplorerWindow
 
     protected override Action[] GetFileSelectActions()
     {
-        var obj = _tempObject;
+        var obj = TempItem;
         Action[] actions = new Action[1];
         actions[0] = delegate { SelectCard(obj); };
         return actions;
@@ -25,16 +21,16 @@ public class CardManagementWindow : FileExplorerWindow
     protected override Action[] GetFileClickActions()
     {
         // example
-        var obj = _tempObject;
+        var obj = TempItem;
         Action[] actions = new Action[2];
-        actions[0] = delegate { _cardController.TryLoadCard(obj.filePath); };
+        // actions[0] = delegate { _cardController.TryLoadCard(obj.filePath); };
         actions[1] = delegate { this.gameObject.SetActive(false); };
         return actions;
     }
 
-    public void SelectCard(FileListObject incomingListObject)
+    public void SelectCard(ListItem incomingListItem)
     {
-        selectedCard = incomingListObject;
+        selectedCard = incomingListItem;
     }
     
 }

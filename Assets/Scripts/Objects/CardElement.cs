@@ -47,20 +47,21 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
     
     public static readonly UnityEvent<CardElement> OnSelectElement = new();
     public static readonly UnityEvent<CardElement> OnBuildElement = new();
+    public static readonly UnityEvent<CardElement> OnCreatedElement = new();
     public static readonly UnityEvent OnSaveElement = new();
     public UnityEvent<ElementData,CardElementType> OnCreateElement;
     public UnityEvent<CardElement> OnUpdateElement = new();
 
     private void OnEnable() {
         OnSaveElement.AddListener(HandleElementSave);
-        OnSelectElement.AddListener(HandleElementSelected);
         OnCreateElement.AddListener(HandleElementCreation);
+        Draggable.onDrag.AddListener(UpdatePosition);
     }
 
     private void OnDisable() {
         OnSaveElement.RemoveListener(HandleElementSave);
-        OnSelectElement.RemoveListener(HandleElementSelected);
         OnCreateElement.RemoveListener(HandleElementCreation);
+        Draggable.onDrag.RemoveListener(UpdatePosition);
     }
 
     [Button]
@@ -72,24 +73,19 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
         var data = elementData ?? new ElementData();
         data.Type = elementType != CardElementType.AsIs ? (int)elementType : data.Type;
         SavedData = UnSavedData = data;
+        OnCreatedElement.Invoke(this);
     }
 
     private void HandleElementSave() {
         SavedData = UnSavedData;
     }
-    
-    // Actually is there any reason to handle selection on element?
-    private void HandleElementSelected(CardElement selectedElement) {
-        if (selectedElement != null && selectedElement != this) {
-            DeselectItem();
-        }
-        else SelectItem();
-    }
-    
-    private void SelectItem() {
-    }
 
-    private void DeselectItem() {
+    private void UpdatePosition() {
+        ElementModifierTransform.UpdateCardElementPosition.Invoke(Rect.anchoredPosition);
+    }
+    
+    private void UpdateSelectionBounds() {
+        Selection.OnMoveSelection.Invoke(Rect.sizeDelta,Rect.localPosition);
     }
 
     // Todo: Move validation of tag outside of this func
@@ -106,11 +102,20 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
     public void SetLayer(int index) {
         UnSavedData.Layer = index;
     }
+    
+    public void SetVisibility(bool state) {
+        UnSavedData.IsVisible = state;
+    }
+    
+    public void SetLock(bool state) {
+        UnSavedData.Locked = state;
+        Draggable.enabled = !state;
+    }
 
     public void SetColor(string newColor) {
         ColorUtility.TryParseHtmlString(newColor, out var c);
         UnSavedData.Color = newColor;
-        // print(newColor);
+        // print(gameObject.name);
         if (ElementType == CardElementType.Image) {
             Image.color = c;
         }
@@ -126,11 +131,13 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
     public void SetScale(Vector2 scale) {
         UnSavedData.ScaleX = scale.x;
         UnSavedData.ScaleY = scale.y;
+        UpdateSelectionBounds();
     }
 
     public void SetPosition(Vector2 pos) {
         UnSavedData.PositionX = pos.x;
         UnSavedData.PositionY = pos.y;
+        UpdateSelectionBounds();
     }
 
     public void SetFlip(bool stateX, bool stateY) {
@@ -160,8 +167,8 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
         UnSavedData.FontUnderlined = state;
     }
 
-    public void SetTextFont(string newFontName) {
-        UnSavedData.FontFamily = newFontName;
+    public void SetTextFont(int fontIndex) {
+        UnSavedData.FontFamily = fontIndex;
     }
 
     public void SetTextFontSize(float newFontSize) {
@@ -181,17 +188,6 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
     public void SetImageFilterMode(int newMode) {
         UnSavedData.ImageFilterMode = newMode;
     }
-    
-    private void GetBounds() {
-        var sizeDelta = ParentRect.sizeDelta;
-        float horizontal = sizeDelta.x / 2 + sizeDelta.x / 2;
-        float vertical = sizeDelta.y / 2 + sizeDelta.y / 2;
-        _boundsX.x = -horizontal;
-        _boundsX.y = horizontal;
-        _boundsY.x = -vertical;
-        _boundsY.y = vertical;
-        // SetRotation();
-    }
 
     // Fix with OnEnable OnDisable
     private void Awake() {
@@ -200,7 +196,7 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
         Draggable = GetComponent<Draggable>();
 
         Rect = GetComponent<RectTransform>();
-        // Draggable.onDrag.AddListener(UpdatePosition);
+        
 
         SetName(this.gameObject.name);
         SetTag("-1");
@@ -215,47 +211,17 @@ public class CardElement : MonoBehaviour, IPointerDownHandler {
             TextMesh.fontSizeMax = 300;
         }
     }
-
-    // Move to input controller
-    private void Update() {
-        if (Input.GetMouseButtonDown(1))
-            DeselectItem();
-    }
     
-    // Move to selection box
-    private void CheckBounds() {
-        var localPosition = Rect.localPosition;
-        var pos = localPosition;
-        pos.x = pos.x < _boundsX.x ? _boundsX.x : pos.x > _boundsX.y ? _boundsX.y : pos.x;
-        pos.y = pos.y < _boundsY.x ? _boundsY.x : pos.y > _boundsY.y ? _boundsY.y : pos.y;
-
-        // _selectionBox.HighlightArea(_rect.sizeDelta,localPosition);
-    }
+    
     
     // Move to card controller
     public ElementData SaveElement() {
         return null;
     }
 
-    // Handled by layer controller
-    private void DeleteItem() {
-        DeselectItem();
-        gameObject.SetActive(false);
-    }
-
-    // Handled by layer controller
-    private void ToggleLock(bool state) {
-        UnSavedData.Locked = state;
-        Draggable.enabled = state;
-    }
-
-    // Handled by layer controller
-    private void ToggleExpose(bool state) {
-        UnSavedData.IsVisible = state;
-    }
+    
 
     public void OnPointerDown(PointerEventData eventData) {
-        //SelectItem();
         OnSelectElement.Invoke(this);
     }
 }

@@ -1,32 +1,34 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
 
-namespace JimJam.Interface
+public class Selection : MonoBehaviour
 {
-    public class Selection : MonoBehaviour
-    {
-        [SerializeField] private Vector2 padding;
-        private RectTransform _rect;
+    [SerializeField] [FoldoutGroup("Settings")]
+    private Vector2 Padding;
+    
+    [SerializeField] [FoldoutGroup("Dependencies")]
+    private RectTransform Rect;
 
-        private void Start()
-        {
-            _rect = GetComponent<RectTransform>();
-        }
+    public static readonly UnityEvent<Vector2,Vector2> OnMoveSelection = new();
 
-        public void HighlightArea(Vector2 size, Vector2 pos)
-        {
-            _rect.sizeDelta = size + padding;
-            _rect.localPosition = pos;
-        }
-
-        public void Reset()
-        {
-            _rect.sizeDelta = Vector2.zero;
-            _rect.localPosition = Vector3.zero;
-        }
+    private void OnEnable() {
+        OnMoveSelection.AddListener(HighlightArea);
     }
 
+    private void OnDisable() {
+        OnMoveSelection.RemoveListener(HighlightArea);
+    }
+
+    private void HighlightArea(Vector2 size, Vector2 pos)
+    {
+        Rect.sizeDelta = size + Padding;
+        Rect.localPosition = pos;
+    }
+    //
+    // public void Reset()
+    // {
+    //     Rect.sizeDelta = Vector2.zero;
+    //     Rect.localPosition = Vector3.zero;
+    // }
 }

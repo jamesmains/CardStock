@@ -17,7 +17,7 @@ public class ImageSelectionWindow : FileExplorerWindow
     private bool _canLoad = true;
     private Texture2D _currentTexture;
 
-    public void ConfirmImageSelection(FileListObject obj)
+    public void ConfirmImageSelection(ListItem obj)
     {
         // if (CardElement.SelectedItem == null) return;
         // var item = CardElement.SelectedItem.GetComponent<ImageSelect>();
@@ -97,11 +97,9 @@ public class ImageSelectionWindow : FileExplorerWindow
                     else sprite = _sprites[indexer];
                     
                     
-                    var obj = Instantiate(fileObjectPrefab, listContainer).GetComponent<FileListObject>();
-                    obj.extraData = indexer;
+                    var obj = Instantiate(fileObjectPrefab, listContainer).GetComponent<ListItem>();
                     _paths.Add(file);
-                    obj.filePath = file;
-                    _tempObject = obj;
+                    TempItem = obj;
                     SetupFile(obj,s,sprite);
                     _currentTexture = null;
                     
@@ -123,12 +121,10 @@ public class ImageSelectionWindow : FileExplorerWindow
             var directories = Directory.GetDirectories(_currentPath);
             foreach (var folder in directories)
             {
-                var obj = Instantiate(imageFolderPrefab, listContainer).GetComponent<FileListObject>();
+                var obj = Instantiate(imageFolderPrefab, listContainer).GetComponent<ListItem>();
                 _tempDirectory = obj;
-                _tempDirectory.filePath = folder;
                 Action[] actions = new Action[1];
                 actions[0] = delegate { GotoFolder(folder); };
-                obj.Setup(Path.GetFileNameWithoutExtension(folder),actions,GetDirectorySelectActions(),null,folderIcon);
             }
         }
     }
@@ -136,7 +132,7 @@ public class ImageSelectionWindow : FileExplorerWindow
     protected override Action[] GetFileSelectActions()
     {
         // example
-        var obj = _tempObject;
+        var obj = TempItem;
         Action[] actions = new Action[1];
         actions[0] = delegate { ConfirmImageSelection(obj); };
         return actions;

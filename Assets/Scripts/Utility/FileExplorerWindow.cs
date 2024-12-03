@@ -22,8 +22,8 @@ using UnityEngine.Events;
     [SerializeField] protected FileExplorerTarget[] fileTypeTargets;
     protected string _rootPath;
     protected string _currentPath;
-    protected FileListObject _tempObject;
-    protected FileListObject _tempDirectory;
+    protected ListItem TempItem;
+    protected ListItem _tempDirectory;
     protected TMP_InputField _currentPathDisplay;
 
     protected override void OnEnable()
@@ -54,10 +54,10 @@ using UnityEngine.Events;
         }
         if (_currentPath != _rootPath)
         {
-            var obj = Instantiate(directoryObjectPrefab, listContainer).GetComponent<FileListObject>();
+            var obj = Instantiate(directoryObjectPrefab, listContainer).GetComponent<ListItem>();
             Action[] actions = new Action[1];
             actions[0] = delegate { GotoFolder(Directory.GetParent(_currentPath)?.ToString()); };
-            obj.Setup("go back",actions,null,null,goBackIcon);
+            // obj.Setup("go back",actions,null,null,goBackIcon);
         }
         
         GetDirectories();
@@ -74,18 +74,18 @@ using UnityEngine.Events;
                 if (file.ToLower().Contains(fileTypeTarget.fileType.ToLower()))
                 {
                     var s = Path.GetFileNameWithoutExtension(file);
-                    var obj = Instantiate(fileObjectPrefab, listContainer).GetComponent<FileListObject>();
-                    obj.filePath = file;
-                    _tempObject = obj;
+                    var obj = Instantiate(fileObjectPrefab, listContainer).GetComponent<ListItem>();
+                    // obj.filePath = file;
+                    TempItem = obj;
                     SetupFile(obj,s,fileTypeTarget.fileIcon);
                 }
             }
         }
     }
 
-    protected virtual void SetupFile(FileListObject obj, string fileName, Sprite fileIcon)
+    protected virtual void SetupFile(ListItem obj, string fileName, Sprite fileIcon)
     {
-        obj.Setup(fileName, GetFileClickActions(),GetFileSelectActions(), null, fileIcon);
+        // obj.Setup(fileName, GetFileClickActions(),GetFileSelectActions(), null, fileIcon);
     }
 
     protected virtual Action[] GetFileSelectActions()
@@ -115,7 +115,7 @@ using UnityEngine.Events;
     {
         var dir = _tempDirectory;
         Action[] actions = new Action[1];
-        actions[0] = delegate { GotoFolder(dir.filePath); };
+        // actions[0] = delegate { GotoFolder(dir.filePath); };
         return actions;
     }
     
@@ -126,12 +126,12 @@ using UnityEngine.Events;
             var directories = Directory.GetDirectories(_currentPath);
             foreach (var folder in directories)
             {
-                var obj = Instantiate(directoryObjectPrefab, listContainer).GetComponent<FileListObject>();
+                var obj = Instantiate(directoryObjectPrefab, listContainer).GetComponent<ListItem>();
                 _tempDirectory = obj;
-                _tempDirectory.filePath = folder;
+                // _tempDirectory.filePath = folder;
                 Action[] actions = new Action[1];
                 actions[0] = delegate { GotoFolder(folder); };
-                obj.Setup(Path.GetFileNameWithoutExtension(folder),actions,GetDirectorySelectActions(),null,folderIcon);
+                // obj.Setup(Path.GetFileNameWithoutExtension(folder),actions,GetDirectorySelectActions(),null,folderIcon);
             }
         }
     }
@@ -144,18 +144,18 @@ using UnityEngine.Events;
     }
     public virtual void DeleteSelected()
     {
-        if (FileListObject.SelectedFileListObject == null) return;
+        if (ListItem.SelectedListItem == null) return;
         Prompt.Singleton.DisplayWarning("Are you sure you want to delete this?",ConfirmDeleteSelection);
     }
 
     public virtual void ConfirmDeleteSelection()
     {
-        FileAttributes attr = File.GetAttributes(FileListObject.SelectedFileListObject.filePath);
-        if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
-            Directory.Delete(FileListObject.SelectedFileListObject.filePath,true);
-        else
-            File.Delete(FileListObject.SelectedFileListObject.filePath);
-        FileListObject.SelectedFileListObject.Deselect();
+        // FileAttributes attr = File.GetAttributes(ListItem.SelectedListItem.filePath);
+        // if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+            // Directory.Delete(ListItem.SelectedListItem.filePath,true);
+        // else
+            // File.Delete(ListItem.SelectedListItem.filePath);
+        ListItem.SelectedListItem.Deselect();
         RefreshList();
     }
     

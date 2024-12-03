@@ -11,9 +11,10 @@ public class ElementData : SaveData {
     public int Type, Layer, Tag, Rotation;
     public float PositionX, PositionY;
     public float ScaleX = 100, ScaleY = 100;
-    public bool FlippedX, FlippedY, Locked, IsVisible, FontBold, FontItalicized, FontUnderlined, AutoSizeFont;
+    public bool FlippedX, FlippedY, FontBold, FontItalicized, FontUnderlined, AutoSizeFont;
+    public bool IsVisible = true, Locked = false;
     public int TextAlignmentHorizontal = 1, TextAlignmentVertical;
-    public string FontFamily;
+    public int FontFamily;
     public string TextContent = "New Text";
     public float FontSize = 16;
     public string Color = "#ffffff";
