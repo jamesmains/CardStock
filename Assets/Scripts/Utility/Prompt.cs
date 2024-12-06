@@ -20,6 +20,9 @@ using UnityEngine.UI;
 public class Prompt : MonoBehaviour {
     [SerializeField] [FoldoutGroup("Dependencies")]
     private Menu PopupMenu;
+
+    [SerializeField] [FoldoutGroup("Dependencies")]
+    private Button ClickProtection;
     
     [SerializeField] [FoldoutGroup("Dependencies")]
     private GameObject ButtonConfirmPrefab;
@@ -153,6 +156,17 @@ public class Prompt : MonoBehaviour {
         AddButton("Cancel",null, false);
         AddButton(buttonText,buttonCallback);
         ShowPopup();
+    }
+
+    public void OpenMenuClickProtection(UnityAction callback) {
+        ClickProtection.gameObject.SetActive(true);
+        ClickProtection.onClick.RemoveAllListeners();
+        ClickProtection.onClick.AddListener(CloseMenuClickProtection);
+        ClickProtection.onClick.AddListener(callback);
+    }
+
+    private void CloseMenuClickProtection() {
+        ClickProtection.gameObject.SetActive(false);
     }
 }
 

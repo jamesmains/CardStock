@@ -20,7 +20,7 @@ public class ElementData : SaveData {
     public string Color = "#ffffff";
     public string ImageFilePath;
     public int ImageFilterMode = 1; // 0 Bilinear, 1 Point
-    public string Name;
+    public string Name = "New Element";
 }
 
 [Serializable]

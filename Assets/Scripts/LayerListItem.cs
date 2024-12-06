@@ -31,9 +31,9 @@ public class LayerListItem : ListItem {
     private void HandleElementBuild(CardElement associatedCardElement) {
         if (AssociatedCardElement != null) return;
         AssociatedCardElement = associatedCardElement;
-        ElementNameInput.SetTextWithoutNotify(associatedCardElement.SavedData.Name);
         ChangeVisibility(associatedCardElement.SavedData.IsVisible);
         LockToggle.isOn = associatedCardElement.SavedData.Locked; // This is a workaround for the awful default toggle that I don't feel like fixing.
+        ChangeName(associatedCardElement.SavedData.Name);
     }
 
     public void Delete() {
@@ -57,6 +57,11 @@ public class LayerListItem : ListItem {
         AssociatedCardElement.transform.SetSiblingIndex(index);
         AssociatedCardElement.SetLayer(index);
         OnChangeLayerOrder.Invoke(this,index);
+    }
+
+    public void ChangeName(string newName) {
+        AssociatedCardElement.UnSavedData.Name = newName;
+        ElementNameInput.SetTextWithoutNotify(newName);
     }
 
     public override void Select() {
